@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.7 2001/03/08 00:48:38 kreator Exp $
+dnl $Id: configure.in,v 1.9 2001/10/06 09:45:47 kreator Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(pam_skey.c)
 
@@ -16,6 +16,9 @@ MYHOST=$host_os
 case "$host_os" in
 *linux*)
   AC_DEFINE(LINUX)
+  ;;
+*bsd*)
+  AC_DEFINE(BSD)
   ;;
 esac
 
@@ -41,8 +44,8 @@ AC_CHECK_HEADERS(stdlib.h pwd.h sys/types.h syslog.h sys/syslog.h string.h strin
 AC_CHECK_HEADERS(security/pam_appl.h security/pam_modules.h, PAMLIB="-lpam", AC_MSG_ERROR(broken libpam installation))
 
 dnl Set various compile time stuff
-AC_C_CONST
-AC_C_CHAR_UNSIGNED
+#AC_C_CONST
+#AC_C_CHAR_UNSIGNED
 
 dnl Check for strings.h
 AC_CACHE_CHECK(whether string.h and strings.h may both be included,
@@ -62,13 +65,13 @@ AC_ARG_WITH(skey-lib, [  --with-skey-lib=DIR     Directory containing skey libra
 AC_ARG_WITH(skey-inc, [  --with-skey-inc=DIR     Directory containing skey include files], CFLAGS="${CFLAGS} -I${withval}")
 
 dnl Check for skey library
-hold_libs=$LIBS
 AC_CHECK_LIB(socket, socket, LIBS="${LIBS} -lsocket")
-AC_CHECK_FUNCS(gethostbyname, , [AC_CHECK_LIB(nsl, gethostbyname), , LIBS="${LIBS} -lnsl"])
-AC_CHECK_LIB(skey, skeyaccess, SKEYLIB="-lskey", AC_MSG_ERROR(skey library not found))
-AC_CHECK_LIB(skey, skeyinfo, , AC_MSG_ERROR(bad skey interface))
-AC_CHECK_LIB(skey, skeyverify, , AC_MSG_ERROR(bad skey interface))
-LIBS=$hold_libs
+AC_CHECK_LIB(nsl, gethostbyname, LIBS="${LIBS} -lnsl")
+AC_CHECK_LIB(skey, skeyverify, SKEYLIB="-lskey", AC_MSG_ERROR(skey library not found or unknown interface))
+AC_CHECK_LIB(skey, skeyaccess, AC_DEFINE(HAVE_SKEYACCESS))
+AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),
+  AC_CHECK_LIB(skey, skeylookup, AC_DEFINE(HAVE_SKEYLOOKUP))
+)
 
 dnl Check against -G linker flag
 hold_ldflags=$LDFLAGS

@@ -1,21 +1,25 @@
 /* defs.h.in.  Generated automatically from configure.in by autoheader.  */
 
-/* Define if type char is unsigned and you are not using gcc.  */
-#ifndef __CHAR_UNSIGNED__
-#undef __CHAR_UNSIGNED__
-#endif
-
-/* Define to empty if the keyword does not work.  */
-#undef const
-
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 
 /* Define if we can include both string.h and strings.h */
 #undef STRING_WITH_STRINGS
 
-/* Define if you have Linux with Linux-PAM */
+/* Define if you have Linux */
 #undef LINUX
+
+/* Define if you have *BSD */
+#undef BSD
+
+/* Define if not missing skeyaccess() */
+#undef HAVE_SKEYACCESS
+
+/* Define if not missing skeyinfo() */
+#undef HAVE_SKEYINFO
+
+/* Define if you have skeylookup() instead of skeyinfo() */
+#undef HAVE_SKEYLOOKUP
 
 /* Define if you have the fprintf function.  */
 #undef HAVE_FPRINTF
@@ -58,6 +62,3 @@
 
 /* Define if you have the <syslog.h> header file.  */
 #undef HAVE_SYSLOG_H
-
-/* Define if you have the skey library (-lskey).  */
-#undef HAVE_LIBSKEY

@@ -18,11 +18,14 @@
  * under the terms of the GNU General Public License under which this
  * program is distributed.
  *
- * $Id: pam_skey.h,v 1.15 2001/04/12 21:13:35 kreator Exp $
+ * $Id: pam_skey.h,v 1.15 2001/08/16 08:22:37 kreator Exp $
  */
 
 /* Prototypes */
+#ifndef BSD
 extern int skeyinfo(struct skey *, char *, char *); /* ORGH! Not in skey.h */
+#endif
+
 static void mod_getopt(unsigned *, int, const char **);
 static int mod_talk_touser(pam_handle_t *, unsigned *, char *, char **);
 

@@ -1,32 +1,26 @@
-2001-04-12 23:16  kreator
+2001-10-06 11:50  kreator
 
-	* misc.h.in: Made code more readable.
+	* RELEASENOTES: - do releasenotes.
 
-2001-04-12 23:14  kreator
+2001-10-06 11:45  kreator
 
-	* ChangeLog: Commit changelog :-P
+	* ChangeLog, configure, autoconf/configure.in: - fixed nsl/socket
+	dlopen() issue with proftpd 1.22 on Solaris
 
-2001-04-12 23:13  kreator
+2001-08-16 10:23  kreator
 
-	* ChangeLog, INSTALL, README, RELEASENOTES, TODO, pam_skey.c,
-	pam_skey.h, pam_skey_access.c, contrib/README,
-	contrib/linux-skey-wuftpd.patch, contrib/netmatch.patch,
-	contrib/norb.patch, contrib/pam_skey.c, sample/pam.conf: Rewrote
-	INSTALL and README to make clear of use pam_skey_access.so module. 
-	Fixed some typos and made additional documentation on parameters. 
-	Added some TODO.  Rewrote bits of pam_skey.c, pam_skey.h and
-	pam_skey_access.c because of code clarification and simplification.
-	 Made contrib/ section and made pam_skey.c with N patch. Rewrote it
-	again since that patch made some parts of code obsolete. 
-	Additional documentation updates..  Change again some bits in code.
+	* contrib/: README, linux-skey-wuftpd.patch, netmatch.patch,
+	norb.patch, pam_skey.c: - added contrib
+
+2001-08-16 10:22  kreator
+
+	* ChangeLog, INSTALL, README, RELEASENOTES, TODO, configure,
+	defs.h.in, misc.h.in, pam_skey.c, pam_skey.h, pam_skey_access.c,
+	autoconf/acconfig.h, autoconf/configure.in, sample/pam.conf: - misc
 
 2001-03-14 23:56  kreator
 
 	* ChangeLog, RELEASENOTES: Complete releasenotes.
-
-2001-03-14 23:54  kreator
-
-	* ChangeLog: [no log message]
 
 2001-03-14 23:53  kreator
 
@@ -138,7 +132,7 @@
 
 2001-03-03 23:24  kreator
 
-	* INSTALL, Makefile.in, README: Smaller set of changes to get $Id: ChangeLog,v 1.6 2001/04/12 21:17:27 kreator Exp $
+	* INSTALL, Makefile.in, README: Smaller set of changes to get $Id: ChangeLog,v 1.7 2001/10/06 09:52:37 kreator Exp $
 	working.
 
 2001-03-03 23:22  kreator
@@ -148,17 +142,13 @@
 
 2001-03-03 23:12  kreator
 
-	* autoconf/configure.in: Add $Id: ChangeLog,v 1.6 2001/04/12 21:17:27 kreator Exp $ to configure.in Perhaps should
+	* autoconf/configure.in: Add $Id: ChangeLog,v 1.7 2001/10/06 09:52:37 kreator Exp $ to configure.in Perhaps should
 	make serial?
 
 2001-03-03 23:11  kreator
 
 	* configure, autoconf/configure.in: Small changes to configure.
 	Start talking in english, this croatian is PITA :)
-
-2001-03-03 23:03  kreator
-
-	* Makefile.in: [no log message]
 
 2001-03-03 22:56  kreator
 
