@@ -1,4 +1,4 @@
-$Id: INSTALL,v 1.7 2001/03/08 10:10:50 kreator Exp $
+$Id: INSTALL,v 1.8 2001/04/12 21:13:35 kreator Exp $
 
 Required
 --------
@@ -39,6 +39,7 @@ chapter `Options'.
 
 pam.conf:
   su  auth  sufficient pam_skey.so.1
+  su  auth  required   pam_skey_access.so.1
   su  auth  required   pam_unix.so.1  try_first_pass
 
 pam.d/su:
@@ -46,12 +47,34 @@ pam.d/su:
   auth  requisite   pam_nologin.so
   auth  required    pam_env.so
   auth  sufficient  pam_skey.so
+  auth  requisite   pam_skey_access.so
   auth  required    pam_unix.so       try_first_pass
 
 For more detailed description, check local pam manpages.
-NOTE: Solaris does not approve option `use_fist_pass' for `pam_unix.so'
+NOTE: Solaris does not approve option `use_first_pass' for `pam_unix.so'
 module if it not `optional'. Beware. As a solution, simply specify
 `try_first_pass' and if skey fails, it will again prompt for password.
+
+Fine tuning
+-----------
+If you want to be sure that people that do not fit in range of addresses
+mentioned in skey.access use S/Keys, you can specify it this way:
+
+  1) enter correct ACLs in skey.access
+  2) turn off access check for pam_skey.so (turned off by default)
+  3) make pam_skey_access.so requisite/required module *after* pam_skey.so
+
+This way you will get this behavior: all people can use S/Keys, since
+they are not checked in ACL. If someone uses plaintext password,
+pam_skey.so will fail and control will be given to next module (since
+pam_skey.so is sufficient, but not required). Next module -
+pam_skey_access.so - will check ACL, and if it fails, complete pam_auth
+process will fail, and plaintext password from host that is denied will
+fail.
+That is emulation of original behavior of Venema's skeylogin that most of
+the people have been using.
+NOTE: You do not have to use pam_skey_access.so if you do not plan to
+check ACLs.
 
 Options
 -------
@@ -59,11 +82,13 @@ This module understands following options that can be specified in pam
 configuration files:
   debug                 - Turns on debugging output through syslog() calls
   echo=off              - Turns off PAM_ECHO, service will not show passwd
-                          on screen when typing
+                          on screen when typing. By default is this option
+                          used.
   echo=on               - Inverse of the above option
   access_check=on       - Checks S/Key access through skeyaccess() call,
                           it will check keyaccess file
-  access_check=off      - Obviously, inverse of the above option
+  access_check=off      - Obviously, inverse of the above option. By
+                          default is this option used.
   use_first_pass        - Helpful for stacking PAM modules, it will try to
                           use passwd string from previous module if it
                           possible

@@ -17,9 +17,14 @@
  * Should you choose to use and/or modify this source code, please do so
  * under the terms of the GNU General Public License under which this
  * program is distributed.
+ *
+ * NOTE:
+ * This is a bit rewritten pam_skey module somewhat applied patch from
+ * Norbert Preining <preining@logic.at>. In fact, that patch caused some
+ * parts of code to be obsolete, so I rewrote or even purged them -kre.
  */
 
-static char rcsid[] = "$Id: pam_skey.c,v 1.37 2001/04/12 21:13:35 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey.c,v 1.1 2001/04/12 21:13:38 kreator Exp $";
 
 #include "defs.h"
 
@@ -59,7 +64,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   char *response = NULL; /* response spacer */
   struct skey skey; /* structure that contains skey information */
   int status; /* return status spacer */
+  int passwdallowed; /* is password allowed */
   unsigned mod_opt=_MOD_NONE_ON; /* module options */
+  char *host; /* points to host */
+  char *port; /* points to port */
+  struct passwd *pwuser; /* structure for getpw() */
 
   /* Get module options */
   mod_getopt(&mod_opt, argc, argv);
@@ -81,66 +90,43 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   if (mod_opt & _MOD_DEBUG)
     syslog(LOG_DEBUG, "got username %s", username);
 
-  /* Check S/Key access permissions - user, host and port. Also include
-   * sanity checks */
-  if (mod_opt & _MOD_ACCESS_CHECK)
-  {
-    char *host; /* points to host */
-    char *port; /* points to port */
-    struct passwd *pwuser; /* structure for getpw() */
-
-    /* Get host.. */
+  /* Get host.. */
 #ifdef LINUX
-    if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
+  if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
 #else
-    if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
+  if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
 #endif
-        != PAM_SUCCESS)
+    != PAM_SUCCESS)
       host = NULL; /* couldn't get host */
-    /* ..and port */
+  /* ..and port */
 #ifdef LINUX
-    if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
+  if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
 #else
-    if (pam_get_item(pamh, PAM_TTY, (void **)&port)
+  if (pam_get_item(pamh, PAM_TTY, (void **)&port)
 #endif
-        != PAM_SUCCESS)
+    != PAM_SUCCESS)
       port = NULL; /* couldn't get port */
 
-    if (mod_opt & _MOD_DEBUG)
-      syslog(LOG_DEBUG, "checking s/key access for user %s,"
-        " host %s, port %s", username,
-        (host != NULL) ? host : "*unknown*",
-        (port != NULL) ? port : "*unknown*");
-
-    /* Get information from passwd file */
-    if ((pwuser = getpwnam(username)) == NULL)
-    {
-      fprintf(stderr, "no such user\n");
-      syslog(LOG_NOTICE, "cannot find user %s", username);
-      return PAM_USER_UNKNOWN; /* perhaps even return PAM_ABORT here? */
-    }
-
-    /* Do actual checking - we assume skeyaccess() returns PERMIT which is
-     * by default 1. Notice 4th argument is NULL - we will not perform
-     * address checks on host itself */
-    if (skeyaccess(pwuser, port, host, NULL) != 1)
-    {
-      fprintf(stderr, "no s/key access permissions\n");
-      syslog(LOG_NOTICE, "no s/key access permissions for %s",
-          username);
-      return PAM_AUTH_ERR;
-    }
+  /* Get information from passwd file */
+  if ((pwuser = getpwnam(username)) == NULL)
+  {
+    fprintf(stderr, "no such user\n");
+    syslog(LOG_NOTICE, "cannot find user %s", username);
+    return PAM_USER_UNKNOWN; /* perhaps even return PAM_ABORT here? */
   }
-  else
-  /* Only do check whether user has passwd entry */
-    if (getpwnam(username) == NULL)
-    {
-      fprintf(stderr, "no such user\n");
-      if (mod_opt & _MOD_DEBUG)
-        syslog(LOG_DEBUG, "cannot find user %s",
-            username);
-      return PAM_USER_UNKNOWN;
-    }
+
+  /* Do actual checking - we assume skeyaccess() returns PERMIT which is
+   * by default 1. Notice 4th argument is NULL - we will not perform
+   * address checks on host itself */
+  passwdallowed = skeyaccess(pwuser, port, host, NULL);
+
+  if ((mod_opt & _MOD_ACCESS_CHECK) && (passwdallowed != 1))
+  {
+	  fprintf(stderr, "no s/key access permissions\n");
+    syslog(LOG_NOTICE, "no s/key access permissions for %s",
+      username);
+    return PAM_AUTH_ERR;
+  }
 
   /* Get S/Key information on user with skeyinfo() */
   switch (skeyinfo(&skey, username, NULL))
@@ -170,8 +156,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   }
 
   /* Make challenge string */
-  snprintf(challenge, CHALLENGE_MAXSIZE, "s/key %d %s",
-      skey.n - 1, skey.seed);
+  snprintf(challenge, CHALLENGE_MAXSIZE, "s/key %d %s %s",
+      skey.n - 1, skey.seed, passwdallowed ? "allowed" : "required");
 
   if (mod_opt & _MOD_DEBUG)
     syslog(LOG_DEBUG, "got challenge %s for %s", challenge,

@@ -1,0 +1,59 @@
+--- pam_skey.c.orig	Mon Apr  9 12:21:14 2001
++++ pam_skey.c	Mon Apr  9 12:26:48 2001
+@@ -56,7 +56,7 @@
+   char challenge[CHALLENGE_MAXSIZE], msg_text[PAM_MAX_MSG_SIZE],
+     *username=NULL, *response=NULL;
+   struct skey skey;
+-  int status;
++  int status, passwdallowed;
+   unsigned mod_opt=_MOD_NONE_ON;
+ 
+   /* Get module options */
+@@ -78,9 +78,6 @@
+   if (mod_opt & _MOD_DEBUG)
+     syslog(LOG_DEBUG, "got username %s", username);
+ 
+-  /* Check S/Key access permissions - user, host and port. Also include
+-   * sanity checks */
+-  if (mod_opt & _MOD_ACCESS_CHECK)
+   {
+     char *host, *port;
+     struct passwd *pwuser;
+@@ -119,13 +116,19 @@
+     /* Do actual checking - we assume skeyaccess() returns PERMIT which is
+      * by default 1. Notice 4th argument is NULL - we will not perform
+      * address checks on host itself */
+-    if (skeyaccess(pwuser, port, host, NULL)!=1)
+-    {
+-      fprintf(stderr, "no s/key access permissions\n");
+-      syslog(LOG_NOTICE, "no s/key access permissions for %s",
+-          username);
+-      return PAM_AUTH_ERR;
+-    }
++    passwdallowed = skeyaccess(pwuser, port, host, NULL);
++  }
++  /* Check S/Key access permissions - user, host and port. Also include
++   * sanity checks */
++  if (mod_opt & _MOD_ACCESS_CHECK)
++  {
++      if (passwdallowed != 1) 
++      {
++	  fprintf(stderr, "no s/key access permissions\n");
++	  syslog(LOG_NOTICE, "no s/key access permissions for %s",
++		 username);
++	  return PAM_AUTH_ERR;
++      }
+   }
+   else
+   /* Only do check whether user has passwd entry */
+@@ -166,8 +169,8 @@
+   }
+ 
+   /* Make challenge string */
+-  snprintf(challenge, CHALLENGE_MAXSIZE, "s/key %d %s",
+-      skey.n-1, skey.seed);
++  snprintf(challenge, CHALLENGE_MAXSIZE, "s/key %d %s %s",
++      skey.n-1, skey.seed, passwdallowed ? "allowed" : "required" );
+ 
+   if (mod_opt & _MOD_DEBUG)
+     syslog(LOG_DEBUG, "got challenge %s for %s", challenge,

@@ -1,0 +1,14 @@
+--- access.c.orig	Tue Sep 28 16:43:12 1999
++++ access.c	Fri Mar 30 21:09:18 2001
+@@ -241,8 +241,10 @@
+ 			okay = !strcmp(*aliases++, buffer);
+ 	}
+ 
+-	if (okay)
++	if (okay) {
++		bcopy(hp->h_addr,&(info->addr),hp->h_length);
+ 		info->host = buffer;
++	}
+ 	return okay;
+ }
+ 

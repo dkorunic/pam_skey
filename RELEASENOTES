@@ -1,9 +1,11 @@
-RELEASE 1.1.1 - Wed Mar 14 23:33:01 CET 2001
+RELEASE 1.1.2 - Thu Apr 12 23:01:29 CEST 2001
 
 Only misc changes in this release:
-* fixed comment in `install' target in Makefile
-* added some sample install scripts
-* made TODO
-* made Changelog
+* added contrib/ section and made pam_skey.c with Norbert Preining patches
+  and some modifications
+* updated documentation
+* disabled access check in pam_skey module by default to more closely
+  emulate original Venema's skeylogin
+* made source more readable
 
 - Dinko Korunic <kreator@fly.srk.fer.hr>
