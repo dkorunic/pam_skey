@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[]="$Id: pam_skey_access.c,v 1.11 2001/03/09 16:34:31 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey_access.c,v 1.12 2001/04/12 21:13:35 kreator Exp $";
 
 #include "defs.h"
 
@@ -34,7 +34,7 @@ static char rcsid[]="$Id: pam_skey_access.c,v 1.11 2001/03/09 16:34:31 kreator E
 #include <sys/types.h>
 #include <syslog.h>
 
-#define PAM_EXTERN   extern
+#define PAM_EXTERN extern
 #undef PAM_STATIC
 
 #include <security/pam_appl.h>
@@ -53,9 +53,10 @@ PAM_EXTERN int pam_sm_setcred (pam_handle_t *pamh, int flags,
 PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   int argc, const char **argv)
 {
-  char *username=NULL;
-  unsigned mod_opt=_MOD_NONE_ON;
-  char *host, *port;
+  char *username = NULL; /* will point to username */
+  unsigned mod_opt = _MOD_NONE_ON; /* module options */
+  char *host; /* will point to host */
+  char *port; /* will point to port */
   struct passwd *pwuser;
 
   /* Get module options */
@@ -81,29 +82,32 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
    * sanity checks */
   /* Get host.. */
 #ifdef LINUX
-  if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)!=PAM_SUCCESS)
+  if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
 #else
-  if (pam_get_item(pamh, PAM_RHOST, (void **)&host)!=PAM_SUCCESS)
+  if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
 #endif
-    host=NULL;
+    != PAM_SUCCESS)
+      host = NULL;
   /* ..and port */
 #ifdef LINUX
-  if (pam_get_item(pamh, PAM_TTY, (const void **)&port)!=PAM_SUCCESS)
+  if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
 #else
-  if (pam_get_item(pamh, PAM_TTY, (void **)&port)!=PAM_SUCCESS)
+  if (pam_get_item(pamh, PAM_TTY, (void **)&port)
 #endif
-    port=NULL;
+    != PAM_SUCCESS)
+      port = NULL;
 
   if (mod_opt & _MOD_DEBUG)
     syslog(LOG_DEBUG, "checking s/key access for user %s,"
-      " host %s, port %s", username, (host!=NULL)?host:"*unknown*",
-      (port!=NULL)?port:"*unknown*");
+      " host %s, port %s", username,
+      (host != NULL) ? host : "*unknown*",
+      (port != NULL) ? port : "*unknown*");
 
   /* Get information from passwd file */
-  if ((pwuser=getpwnam(username))==NULL)
+  if ((pwuser = getpwnam(username)) == NULL)
   {
-    fprintf(stderr, "cannot find passwd info\n");
-    syslog(LOG_NOTICE, "cannot find passwd info for %s",
+    fprintf(stderr, "no such user\n");
+    syslog(LOG_NOTICE, "cannot find user %s",
       username);
     return PAM_AUTHINFO_UNAVAIL;
   }
@@ -111,7 +115,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   /* Do actual checking - we assume skeyaccess() returns PERMIT which is
    * by default 1. Notice 4th argument is NULL - we will not perform
    * address checks on host itself */
-  if (skeyaccess(pwuser, port, host, NULL)!=1)
+  if (skeyaccess(pwuser, port, host, NULL) != 1)
   {
     fprintf(stderr, "no s/key access permissions\n");
     syslog(LOG_NOTICE, "no s/key access permissions for %s",
@@ -128,25 +132,25 @@ static void mod_getopt(unsigned *mod_opt, int mod_argc, const char **mod_argv)
   int i;
 
   /* Setup runtime defaults */
-  *mod_opt|=_MOD_DEFAULT_FLAG;
-  *mod_opt&=_MOD_DEFAULT_MASK;
+  *mod_opt |= _MOD_DEFAULT_FLAG;
+  *mod_opt &= _MOD_DEFAULT_MASK;
 
   /* Setup runtime options */
   while (mod_argc--)
   {
-    for (i=0; i<_MOD_ARGS; ++i)
+    for (i = 0; i < _MOD_ARGS; ++i)
     {
-      if (mod_args[i].token!=NULL &&
+      if (mod_args[i].token != NULL &&
           !strncmp(*mod_argv, mod_args[i].token,
             strlen(mod_args[i].token)))
         break;
     }
-    if (i>=_MOD_ARGS)
+    if (i >= _MOD_ARGS)
       syslog(LOG_ERR, "unknown option %s", *mod_argv);
     else
     {
-      *mod_opt&=mod_args[i].mask; /* Turn off */
-      *mod_opt|=mod_args[i].flag; /* Turn on */
+      *mod_opt &= mod_args[i].mask; /* Turn off */
+      *mod_opt |= mod_args[i].flag; /* Turn on */
     }
     ++mod_argv;
   }

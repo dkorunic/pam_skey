@@ -1,0 +1,39 @@
+I am including here patches contributed by Norbert Preining,
+<preining@logic.at>. I had to rewrite some code to make it smooth after
+Norbert's `verbose' patch for pam_skey, so I am including it here, too.
+
+Here follows his description:
+
+Attached are two patches: The first is for the linux-skey package
+by itself and is very simple. he problem was that the IP address was
+never saved within the struct login and therefore the check for the
+ip-addr always failed. I just made a bcopy, it works, but I am not
+sure if this is the prefered method, since I am definitely NOT a
+ip-hacker, although I know a bit of C. The second patch is for
+wuftpd 1.6 or so, which just changes the calls to the skey functions
+from the Venema package to the linux-skey package (slightly different
+calliong convention). It works for linux/x86 and linux/alpha (tested),   
+but for NO other platform (the #ifdefs are only changed for linux!).
+
+I found one thing: Using wuftpd 1.6.1 with pam is not very good, because
+you DON'T get the challange sent, you only see passwd:
+
+If you type in the right skey, then you are right, but you have to
+know which number is the current. If I compile wuftpd with --enable-skey
+then it is very nice, because it says one of the following possibilities:
+
+If ONLY skey is allowed and initialized:
+331 s/key 93 alpha395403 required for preining.
+Password:
+
+if skey and passwd is allowed:
+331 s/key 93 alpha23872 allowed for salzer.
+Password: 
+
+if skey is not initialized.
+331 Password required for leitsch.
+Password: 
+
+This is very nice and helpful! I attach a patch which really simple
+make the check always, saves it in int passwdallowed and changes
+the challange to include `required' or `allowed'.
