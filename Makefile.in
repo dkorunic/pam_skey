@@ -1,0 +1,49 @@
+# $Id: Makefile.in,v 1.4 2001/03/04 14:19:03 kreator Exp $
+#
+# This is too simple Makefile template. I think some things could be
+# rewritten -kre
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+#$(DESTDIR) should suffice for packaging
+INSTALLDIR=$(DESTDIR)@libdir@/security
+
+CC=@CC@
+CFLAGS=@CFLAGS@ -Wall -fPIC -DPIC -pedantic
+LIBS=@LIBS@ @SKEYLIB@ @PAMLIB@
+LDFLAGS=@LDFLAGS@
+
+INSTALL=@INSTALL@ -m 600
+RM=@RM@ -f
+LN=@LN@ -s
+
+PAM_FILES=pam_skey.so.1 pam_skey_access.so.1
+
+all: $(PAM_FILES)
+
+pam_skey.so.1:
+	${CC} ${CFLAGS} pam_skey.c -o $@ ${LIBS} ${LDFLAGS}
+
+pam_skey_access.so.1:
+	${CC} ${CFLAGS} pam_skey_access.c -o $@ ${LIBS} ${LDFLAGS}
+
+install:
+	@if test ! -d $(INSTALLDIR); then \
+		echo "Missing $(INSTALLDIR). Problem with PAM installation?"; \
+	else \
+		for file in $(PAM_FILES); do \
+			if test ! -f "$(INSTALLDIR)/$$file"; then \
+				echo "Installing $$file in $(INSTALLDIR)"; \
+				$(INSTALL) "$$file" "$(INSTALLDIR)/$$file"; \
+# Eek. -kre
+				(cd $(INSTALLDIR) && $(LN) "$$file" `echo $$file | cut -d. -f1,2`); \
+			else \
+				echo "$$file exists - will not overwrite it"; \
+			fi \
+		done \
+	fi
+
+clean:
+	${RM} a.out core *.so.1 *.o *.bak
+
+distclean: clean
+	${RM} config.status config.cache config.log defs.h Makefile
