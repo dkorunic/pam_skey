@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id: pam_skey.c,v 1.37 2001/04/12 21:13:35 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey.c,v 1.37 2001/08/16 08:22:37 kreator Exp $";
 
 #include "defs.h"
 
@@ -65,7 +65,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
-#ifdef LINUX
+#if defined LINUX || defined BSD
   if (pam_get_user(pamh, (const char **)&username, "login:")
 #else
   if (pam_get_user(pamh, (char **)&username, "login:")
@@ -81,6 +81,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   if (mod_opt & _MOD_DEBUG)
     syslog(LOG_DEBUG, "got username %s", username);
 
+#ifdef HAVE_SKEYACCESS
   /* Check S/Key access permissions - user, host and port. Also include
    * sanity checks */
   if (mod_opt & _MOD_ACCESS_CHECK)
@@ -90,7 +91,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     struct passwd *pwuser; /* structure for getpw() */
 
     /* Get host.. */
-#ifdef LINUX
+#if defined LINUX || defined BSD
     if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
 #else
     if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
@@ -98,7 +99,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
         != PAM_SUCCESS)
       host = NULL; /* couldn't get host */
     /* ..and port */
-#ifdef LINUX
+#if defined LINUX || defined BSD
     if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
 #else
     if (pam_get_item(pamh, PAM_TTY, (void **)&port)
@@ -132,6 +133,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     }
   }
   else
+
+#endif /* HAVE_SKEYACCESS */
+    
   /* Only do check whether user has passwd entry */
     if (getpwnam(username) == NULL)
     {
@@ -143,7 +147,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     }
 
   /* Get S/Key information on user with skeyinfo() */
+#ifdef HAVE_SKEYINFO
   switch (skeyinfo(&skey, username, NULL))
+#else
+#ifdef HAVE_SKEYLOOKUP
+  switch (skeylookup(&skey, username))
+#endif /* HAVE_SKEYLOOKUP */
+#endif /* HAVE_SKEYINFO */
   {
   /* 0: OK */
   case 0:
@@ -181,7 +191,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   if (mod_opt & _MOD_USE_FIRST_PASS)
   {
     /* Try to extract authtoken */
-#ifdef LINUX
+#if defined LINUX || defined BSD
     if (pam_get_item(pamh, PAM_AUTHTOK, (const void **)&response)
 #else
     if (pam_get_item(pamh, PAM_AUTHTOK, (void **)&response)
@@ -339,7 +349,7 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   message.msg = msg_text;
 
   /* Do conversation and see if all is OK */
-#ifdef LINUX
+#if defined LINUX || defined BSD
   if (pam_get_item(pamh, PAM_CONV, (const void **)&conv)
 #else
   if (pam_get_item(pamh, PAM_CONV, (void **)&conv)
@@ -352,7 +362,7 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   }
 
   /* Convert into pam_response - only 1 reply expected */
-#ifdef LINUX
+#if defined LINUX || defined BSD
   if (conv->conv(1, &pmessage, &presponse,
         conv->appdata_ptr)
 #else

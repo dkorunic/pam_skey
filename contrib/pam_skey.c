@@ -24,7 +24,7 @@
  * parts of code to be obsolete, so I rewrote or even purged them -kre.
  */
 
-static char rcsid[] = "$Id: pam_skey.c,v 1.1 2001/04/12 21:13:38 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey.c,v 1.1 2001/08/16 08:23:23 kreator Exp $";
 
 #include "defs.h"
 

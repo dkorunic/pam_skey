@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id: pam_skey_access.c,v 1.12 2001/04/12 21:13:35 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey_access.c,v 1.12 2001/08/16 08:22:37 kreator Exp $";
 
 #include "defs.h"
 
@@ -63,7 +63,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
-#ifdef LINUX
+#if defined LINUX || defined BSD
   if (pam_get_user(pamh, (const char **)&username, "login:")!=PAM_SUCCESS)
 #else
   if (pam_get_user(pamh, (char **)&username, "login:")!=PAM_SUCCESS)
@@ -81,7 +81,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   /* Check S/Key access permissions - user, host and port. Also include
    * sanity checks */
   /* Get host.. */
-#ifdef LINUX
+#if defined LINUX || defined BSD
   if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
 #else
   if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
@@ -112,6 +112,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     return PAM_AUTHINFO_UNAVAIL;
   }
 
+#ifdef HAVE_SKEYACCESS
+
   /* Do actual checking - we assume skeyaccess() returns PERMIT which is
    * by default 1. Notice 4th argument is NULL - we will not perform
    * address checks on host itself */
@@ -122,6 +124,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
         username);
     return PAM_AUTH_ERR;
   }
+
+#endif /* HAVE_SKEYACCESS */
 
   return PAM_SUCCESS;
 }

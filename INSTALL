@@ -1,12 +1,14 @@
-$Id: INSTALL,v 1.8 2001/04/12 21:13:35 kreator Exp $
+$Id: INSTALL,v 1.8 2001/08/16 08:22:37 kreator Exp $
 
 Required
 --------
-For building this package you will need original Wietse Venema's logdaemon
-package. You should unpack it and make `libskey.a' (library containing
-some of the functions we are using) and other required utilities
-(`keyinfo', `keyprint', `skeyaccess', `key', `keyinit') as you would
-normally do.
+For building this package you will probably need original Wietse Venema's
+logdaemon package if you are on system without libskey (like Linux).
+However, this package will try to use system libskey as well as Yuri
+Yudin's S/Key package. You should have functional `libskey.a' or
+`libskey.so' (library containing some of the functions we are using) and
+other required utilities (`keyinfo', `keyprint', `skeyaccess', `key',
+`keyinit') as you would normally do.
 
 Configuring and making
 ----------------------
