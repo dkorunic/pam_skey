@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[]="$Id: pam_skey_access.c,v 1.7 2001/03/01 22:47:15 kreator Exp $";
+static char rcsid[]="$Id: pam_skey_access.c,v 1.10 2001/03/08 00:44:28 kreator Exp $";
 
 #include "defs.h"
 
@@ -42,6 +42,7 @@ static char rcsid[]="$Id: pam_skey_access.c,v 1.7 2001/03/01 22:47:15 kreator Ex
 
 #include "skey.h"
 #include "pam_skey.h"
+#include "misc.h"
 
 PAM_EXTERN int pam_sm_setcred (pam_handle_t *pamh, int flags,
   int argc, const char **argv)
@@ -61,12 +62,16 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
+#ifdef LINUX
+  if (pam_get_user(pamh, (const char **)&username, "login:")!=PAM_SUCCESS)
+#else
   if (pam_get_user(pamh, (char **)&username, "login:")!=PAM_SUCCESS)
+#endif
   {
     fprintf(stderr, "cannot determine username\n");
     if (mod_opt & _MOD_DEBUG)
       syslog(LOG_DEBUG, "cannot determine username");
-    return PAM_SERVICE_ERR;
+    return PAM_AUTHINFO_UNAVAIL;
   }
 
   if (mod_opt & _MOD_DEBUG)
@@ -75,10 +80,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   /* Check S/Key access permissions - user, host and port. Also include
    * sanity checks */
   /* Get host.. */
+#ifdef LINUX
+  if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)!=PAM_SUCCESS)
+#else
   if (pam_get_item(pamh, PAM_RHOST, (void **)&host)!=PAM_SUCCESS)
+#endif
     host=NULL;
   /* ..and port */
+#ifdef LINUX
+  if (pam_get_item(pamh, PAM_TTY, (const void **)&port)!=PAM_SUCCESS)
+#else
   if (pam_get_item(pamh, PAM_TTY, (void **)&port)!=PAM_SUCCESS)
+#endif
     port=NULL;
 
   if (mod_opt & _MOD_DEBUG)
@@ -92,7 +105,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     fprintf(stderr, "cannot find passwd info\n");
     syslog(LOG_NOTICE, "cannot find passwd info for %s",
       username);
-    return PAM_SERVICE_ERR;
+    return PAM_AUTHINFO_UNAVAIL;
   }
 
   /* Do actual checking - we assume skeyaccess() returns PERMIT which is
@@ -103,7 +116,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     fprintf(stderr, "no s/key access permissions\n");
     syslog(LOG_NOTICE, "no s/key access permissions for %s",
         username);
-    return PAM_SERVICE_ERR;
+    return PAM_AUTH_ERR;
   }
 
   return PAM_SUCCESS;

@@ -1,4 +1,4 @@
-$Id: INSTALL,v 1.5 2001/03/04 22:09:18 kreator Exp $
+$Id: INSTALL,v 1.7 2001/03/08 10:10:50 kreator Exp $
 
 Required
 --------
@@ -39,16 +39,19 @@ chapter `Options'.
 
 pam.conf:
   su  auth  sufficient pam_skey.so.1
-  su  auth  required   pam_unix.so.1  use_first_pass
+  su  auth  required   pam_unix.so.1  try_first_pass
 
 pam.d/su:
   auth  requisite   pam_securetty.so
   auth  requisite   pam_nologin.so
   auth  required    pam_env.so
   auth  sufficient  pam_skey.so
-  auth  required    pam_unix.so       use_first_pass
+  auth  required    pam_unix.so       try_first_pass
 
 For more detailed description, check local pam manpages.
+NOTE: Solaris does not approve option `use_fist_pass' for `pam_unix.so'
+module if it not `optional'. Beware. As a solution, simply specify
+`try_first_pass' and if skey fails, it will again prompt for password.
 
 Options
 -------

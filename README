@@ -1,4 +1,4 @@
-$Id: README,v 1.6 2001/03/04 17:43:02 kreator Exp $
+$Id: README,v 1.9 2001/03/08 11:11:38 kreator Exp $
 
 About
 -----
@@ -8,6 +8,13 @@ library/interface by Wietse Venema. So far it has been tested on Linux
 reason to believe it will work where PAM implementation exists and is
 properly done. It provides `auth' services only. It can use tokens from
 PAM_AUTHTOK to implement flexibile module stacking.
+This suite consists of following modules:
+pam_skey.so           - main module than by default contains routines for
+                        checking skey.access for access rules
+pam_skey_access.so    - add-on module that is mostly obsolete, since it is
+                        useful only when it is required module after
+                        pam_skey, that means when skey.access should
+                        control even beviour of other modules
 
 Known problems
 --------------
@@ -28,7 +35,9 @@ Bugs
 If you find any bug, or something that is likely to be bug, try to exactly
 see what happens using `debug' option in local pam configuration file and
 e-mail me together with console and syslog information.
-There are still no known bugs.
+There are still no known bugs in my code, but there are some in original
+logdaemon skey code (no flock(), wrong return values, etc.). Some day I
+will rewrite it.
 
 Literature and other sources
 ----------------------------

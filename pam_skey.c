@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[]="$Id: pam_skey.c,v 1.29 2001/03/03 19:47:40 kreator Exp $";
+static char rcsid[]="$Id: pam_skey.c,v 1.34 2001/03/08 10:10:50 kreator Exp $";
 
 #include "defs.h"
 
@@ -42,6 +42,7 @@ static char rcsid[]="$Id: pam_skey.c,v 1.29 2001/03/03 19:47:40 kreator Exp $";
 
 #include "skey.h"
 #include "pam_skey.h"
+#include "misc.h"
 
 PAM_EXTERN int pam_sm_setcred (pam_handle_t *pamh, int flags,
   int argc, const char **argv)
@@ -62,12 +63,16 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
+#ifdef LINUX
+  if (pam_get_user(pamh, (const char **)&username, "login:")!=PAM_SUCCESS)
+#else
   if (pam_get_user(pamh, (char **)&username, "login:")!=PAM_SUCCESS)
+#endif
   {
     fprintf(stderr, "cannot determine username\n");
     if (mod_opt & _MOD_DEBUG)
       syslog(LOG_DEBUG, "cannot determine username");
-    return PAM_SERVICE_ERR;
+    return PAM_USER_UNKNOWN;
   }
 
   if (mod_opt & _MOD_DEBUG)
@@ -81,11 +86,19 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     struct passwd *pwuser;
 
     /* Get host.. */
+#ifdef LINUX
+    if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
+#else
     if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
+#endif
         !=PAM_SUCCESS)
       host=NULL;
     /* ..and port */
+#ifdef LINUX
+    if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
+#else
     if (pam_get_item(pamh, PAM_TTY, (void **)&port)
+#endif
         !=PAM_SUCCESS)
       port=NULL;
 
@@ -100,7 +113,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
       fprintf(stderr, "cannot find passwd info\n");
       syslog(LOG_NOTICE, "cannot find passwd info for %s",
         username);
-      return PAM_SERVICE_ERR;
+      return PAM_USER_UNKNOWN;
     }
 
     /* Do actual checking - we assume skeyaccess() returns PERMIT which is
@@ -111,7 +124,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
       fprintf(stderr, "no s/key access permissions\n");
       syslog(LOG_NOTICE, "no s/key access permissions for %s",
           username);
-      return PAM_SERVICE_ERR;
+      return PAM_AUTH_ERR;
     }
   }
   else
@@ -132,16 +145,24 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   case 0:
     break;
   /* -1: File error */
+  /* XXX- This seems broken in (at least) logdaemon-5.8. It returns -1
+   * when user not found in keyfile. -kre */
   case -1:
+    /*
     fprintf(stderr, "s/key database error\n");
     syslog(LOG_NOTICE, "s/key database error");
     return PAM_AUTHINFO_UNAVAIL;
+    */
   /* 1: No such user in database */
   case 1:
+		/* We won't confuse the ordinary user telling him about mising skeys
+		 * -kre */
+#if 0
     fprintf(stderr, "no s/key for %s\n", username);
+#endif
     if (mod_opt & _MOD_DEBUG)
       syslog(LOG_DEBUG, "no s/key for %s\n", username);
-    return PAM_USER_UNKNOWN;
+    return PAM_AUTHINFO_UNAVAIL;
   }
 
   /* Make challenge string */
@@ -156,7 +177,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   if (mod_opt & _MOD_USE_FIRST_PASS)
   {
     /* Try to extract authtoken */
+#ifdef LINUX
+    if (pam_get_item(pamh, PAM_AUTHTOK, (const void **)&response)
+#else
     if (pam_get_item(pamh, PAM_AUTHTOK, (void **)&response)
+#endif
         !=PAM_SUCCESS)
     {
       if (mod_opt & _MOD_DEBUG)
@@ -201,12 +226,18 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
         _pam_delete(response);
         fprintf(stderr, "(turning echo on)\n");
         mod_opt &= ~_MOD_ECHO_OFF;
+
         /* Prepare a complete message for conversation */
         snprintf(msg_text, PAM_MAX_MSG_SIZE, "password: ");
+
         /* Talk with user */
-          if (mod_talk_touser(pamh, &mod_opt, msg_text, &response)
+        if (mod_talk_touser(pamh, &mod_opt, msg_text, &response)
           !=PAM_SUCCESS)
           return PAM_SERVICE_ERR;
+
+        /* Got again empty response. Bailout and don't save auth token */
+        if (empty_authtok(response))
+          return PAM_IGNORE;
       }
       else
       /* There was echo on already - just get out and don't save auth token
@@ -214,10 +245,9 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
         return PAM_IGNORE;
     }
 
-    /* Got again empty response. Bailout and don't save auth token */
-    /* XXX - next retry puts \n at the end? */
-    if (empty_authtok(response))
-      return PAM_IGNORE;
+    /* XXX - ECHO ON puts '\n' at the end in Solaris 2.7! This is
+     * ugly cludge to get rid of this nasty `feature' -kre */
+    _pam_degarbage(response);
   
     /* Store auth token - that next module can use with `use_first_pass' */
     if (pam_set_item(pamh, PAM_AUTHTOK, response)
@@ -306,7 +336,11 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   message.msg=msg_text;
 
   /* Do conversation and see if all is OK */
+#ifdef LINUX
+  if (pam_get_item(pamh, PAM_CONV, (const void **)&conv)
+#else
   if (pam_get_item(pamh, PAM_CONV, (void **)&conv)
+#endif
       !=PAM_SUCCESS)
   {
     if (*mod_opt & _MOD_DEBUG)
@@ -315,8 +349,13 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   }
 
   /* Convert into pam_response - only 1 reply expected */
+#ifdef LINUX
+  if (conv->conv(1, &pmessage, &presponse,
+        conv->appdata_ptr)!=PAM_SUCCESS)
+#else
   if (conv->conv(1, (struct pam_message **)&pmessage, &presponse,
         conv->appdata_ptr)!=PAM_SUCCESS)
+#endif
   {
     _pam_delete(presponse->resp);
     return PAM_SERVICE_ERR;

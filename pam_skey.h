@@ -18,11 +18,8 @@
  * under the terms of the GNU General Public License under which this
  * program is distributed.
  *
- * $Id: pam_skey.h,v 1.11 2001/03/04 18:18:05 kreator Exp $
+ * $Id: pam_skey.h,v 1.14 2001/03/08 10:10:50 kreator Exp $
  */
-
-/* Release ID. */
-static char release[]="pam_skey rel_1_0_0 2001/03/04 19:07:58 by Dinko Korunic, kreator@fly.srk.fer.hr"
 
 /* Prototypes */
 extern int skeyinfo(struct skey *, char *, char *); /* ORGH! Not in skey.h */
@@ -52,6 +49,24 @@ if (X!=NULL)          \
 {                         \
   _pam_overwrite(xx);     \
   _pam_drop(xx);          \
+}
+
+/* This will get us rid of first '\n' in response string and cut-off the
+ * rest of the string. It should be ASCIIZ, of course */
+#define _pam_degarbage(x)     \
+{                             \
+  register char *__xx__;      \
+    if ((__xx__=(x)))         \
+      while (*__xx__)         \
+      {                       \
+        if ((*__xx__)=='\n')  \
+        {                     \
+          *__xx__=0;          \
+          break;              \
+        }                     \
+        else                  \
+          __xx__++;           \
+      }                       \
 }
 
 /* Handy empty AUTHTOK macro */

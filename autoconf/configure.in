@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.3 2001/03/03 22:12:58 kreator Exp $
+dnl $Id: configure.in,v 1.7 2001/03/08 00:48:38 kreator Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(pam_skey.c)
 
@@ -10,6 +10,19 @@ dnl Set language and save it
 AC_LANG_C
 AC_LANG_SAVE
 
+dnl Get system type
+AC_CANONICAL_HOST
+MYHOST=$host_os
+case "$host_os" in
+*linux*)
+  AC_DEFINE(LINUX)
+  ;;
+esac
+
+dnl Package information
+PACKAGE=pam_skey
+VERSION=1.1
+
 dnl Standard installation path
 AC_PREFIX_DEFAULT(/usr)
 
@@ -18,6 +31,8 @@ AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PATH_PROG(RM, rm)
 AC_PATH_PROG(LN, ln)
+AC_PATH_PROG(CP, cp)
+AC_PATH_PROG(AWK, awk)
 AC_PROG_INSTALL
 
 dnl Check standard headers
@@ -83,5 +98,8 @@ fi
 AC_SUBST(LDFLAGS)
 AC_SUBST(SKEYLIB)
 AC_SUBST(PAMLIB)
+AC_SUBST(MYHOST)
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile misc.h)
