@@ -1,0 +1,83 @@
+$Id: README,v 1.6 2001/03/04 17:43:02 kreator Exp $
+
+About
+-----
+This is complete pam_skey modul as interface to existing S/Key
+library/interface by Wietse Venema. So far it has been tested on Linux
+(Debian 2.2-stable and 2.3-unstable), Solaris 2.6, 2.7 and 2.8. I have
+reason to believe it will work where PAM implementation exists and is
+properly done. It provides `auth' services only. It can use tokens from
+PAM_AUTHTOK to implement flexibile module stacking.
+
+Known problems
+--------------
+Note that there are several problems with existing (original) Wietse
+Venema's implementation - no flock() on keys file, hairy host checking
+code in skeyaccess(), etc. If there is any other library function and
+parametric compatible with S/Key library, this will most probably work
+with it, too. I am planning to re-implement S/Key library later.
+Gcc, as default compiler on Linux complains a lot about not having const
+pointers in pam_*().
+
+Installation
+------------
+Please, for installation instructions look at INSTALL file.
+
+Bugs
+----
+If you find any bug, or something that is likely to be bug, try to exactly
+see what happens using `debug' option in local pam configuration file and
+e-mail me together with console and syslog information.
+There are still no known bugs.
+
+Literature and other sources
+----------------------------
+I find most helpful was Linux-PAM documentation. I had also a peek into
+following sources:
+  Wietse Venema's logdaemon package
+  Olaf Kirch's Linux S/Key package
+  Wyman Miles' pam_securid module
+  Linux-PAM modules and templates
+
+Contact
+-------
+I am including my public PGP keys if anyone decides to write me something
+highly confidential or private. E-mail address is kreator@fly.srk.fer.hr
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.3i
+
+mQBtAzhopNcAAAEDAKyozUXB2XQe/oTtK7O9/RgkV2YcR+Q4tJOxXXxeU0DrYU0n
+uV3snpyVmDC2lmqu2b8mTBq+PuMcShWOQWrdwCCthzoSgypP+AwNlyaxv7rsSscn
+pfwcpfihx/d0bAP2YQAFEbQmRGlua28gS29ydW5pYyA8a3JlYXRvckBmbHkuc3Jr
+LmZlci5ocj6JAHUDBRA4aKTXocf3dGwD9mEBAcHXAwCBMglNS54Inzcm2ZCUwVsj
+BcISQd+rhoHwAjUdolA9QBqkjmxlO8ymcCrJg06z30wI1LjHPTNs0zb0Cj57ap3s
+SRW7ghkExKOgNuKMPF4tL1ZVxzxePyntqATc2zTisfo=
+=potB
+-----END PGP PUBLIC KEY BLOCK-----
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP 6.5.1
+
+mQGiBDhun7kRBADpGmwEBdVkGDWgQR83NPn0ZBSE2N/XHDD+EDEniyH1tHZjVpI3
+hwVeszbPNMgxFQ2Q0KmlcCsmPoiu78Zg1DNJh7jqCqvysZ7KldNBOHK5IJbCkI2P
+UYH+Rz7o20EO4M1sJWP/57K4pZH+sZpIMyRPS8TuorU1pwbLNV9gW8ONfQCg/8Sp
+RKVXx0DLgGfCk/pFz2ji0pkD/iOJAoNMyd8Kr0VLRYkCig9JywZRjB8aCu+3i0IW
+mtKt5tJcW8eLtisyrqj14H1BazpLF8T+jgX+8ozX19TjKn1apHLfuywQ78N2+9sh
+sYBxstsZBCppRJVA+xz+A7zJx5m2D2ZnlJvbOiG0lJmDyLcIINGaTHv0Ibq9KPs2
+pa+nBADc/lfrh9VQbhhu+0XKfnZJgbr1BTfliBhjjno7HdZ9lwMxlIpKi9ef4o0N
+rKskwfZgQHbpjTyDEp3SV7CHxpPs1UPqvw4qkOgT4cgahfqLxAlEpLnR3nJ2tOm6
+NNPdqESGHlhF3pNEsZ+p3Zi1qkKdAPUVCY/WSL9bZA+6/dRde7QmRGlua28gS29y
+dW5pYyA8a3JlYXRvckBmbHkuc3JrLmZlci5ocj6JAE4EEBECAA4FAjhun7kECwMB
+AgIZAQAKCRAHB0UHP4jleVI9AKDSyZjN7aVdG/lFZWSVY7dVACVMJACg6o6fBax0
+ckmmTHJgyzwpxwXbX0G5AQ0EOG6f2BAEAPCOaMLLXdNsyh5W8BC4siKeTNb8CrcR
+zJArA3plfU6JrxPKSZ1blT/AVIn86btQ/k+0jATofMbhC5yZpMLISfgfqAyXQCbR
+RepBgjvoBaOlVUhvprkFTu5vdoLIeCwzaBUjtreUbiAq+5amhQFA76vryPlgMM5I
+lJ/gAaVjK9gxAAICBADGA0NheT5b8eH9MnPM6dS5SlORqmV935cGc4A2KGGa7Iut
+YNQhi8jJ5eUsh5SwseI1caxo8jzI/EZiW3g9iBIytbYT3JwiSGD15lE44sigpkZs
+pIqQua/GAGDhuOPc2vSwhjfUfxqdn+KwBi8HrL6TYtbGo0d3LuCOWvpnF/BlhIkA
+RgQYEQIABgUCOG6f2AAKCRAHB0UHP4jleY8uAKC6x71WyPvHwu7DwCOpV92hLcfk
+sACfYAsajkztJKYdRl8jM2B1jt7/Yas=
+=wxUv
+-----END PGP PUBLIC KEY BLOCK-----
+
