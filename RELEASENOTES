@@ -1,19 +1,9 @@
-RELEASE 1.1.0 - Wed Mar  7 20:27:23 CET 2001
+RELEASE 1.1.1 - Wed Mar 14 23:33:01 CET 2001
 
-This release addresses several seen problems:
-1) Problems with original logdaemon package:
-file skeylogin.c
-function int skeyinfo()
-<...>
-  case 1:   /* User not found */
-  fclose(mp->keyfile);
-  return -1;                     <-------- obvious wrong return value
-<..>
-
-2) In Solaris 2.7 I have noticed peculiar behavior: with PAM_ECHO_ON,
-pam_conv puts '\n' at the end of received string. This fixes that problem,
-too.
-
-3) Fixed annoying compiler warnings under Linux
+Only misc changes in this release:
+* fixed comment in `install' target in Makefile
+* added some sample install scripts
+* made TODO
+* made Changelog
 
 - Dinko Korunic <kreator@fly.srk.fer.hr>

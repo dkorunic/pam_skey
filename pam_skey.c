@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[]="$Id: pam_skey.c,v 1.34 2001/03/08 10:10:50 kreator Exp $";
+static char rcsid[]="$Id: pam_skey.c,v 1.36 2001/03/09 16:34:31 kreator Exp $";
 
 #include "defs.h"
 
@@ -57,7 +57,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     *username=NULL, *response=NULL;
   struct skey skey;
   int status;
-  unsigned mod_opt=0U;
+  unsigned mod_opt=_MOD_NONE_ON;
 
   /* Get module options */
   mod_getopt(&mod_opt, argc, argv);
@@ -155,8 +155,8 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     */
   /* 1: No such user in database */
   case 1:
-		/* We won't confuse the ordinary user telling him about mising skeys
-		 * -kre */
+    /* We won't confuse the ordinary user telling him about missing skeys
+     * -kre */
 #if 0
     fprintf(stderr, "no s/key for %s\n", username);
 #endif

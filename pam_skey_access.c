@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[]="$Id: pam_skey_access.c,v 1.10 2001/03/08 00:44:28 kreator Exp $";
+static char rcsid[]="$Id: pam_skey_access.c,v 1.11 2001/03/09 16:34:31 kreator Exp $";
 
 #include "defs.h"
 
@@ -54,7 +54,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   int argc, const char **argv)
 {
   char *username=NULL;
-  unsigned mod_opt=0U;
+  unsigned mod_opt=_MOD_NONE_ON;
   char *host, *port;
   struct passwd *pwuser;
 

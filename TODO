@@ -1,0 +1,10 @@
+$Id: TODO,v 1.1 2001/03/14 22:42:06 kreator Exp $
+
+TODO/worklist:
+(NOTICE: not necessarily in "right" order)
+
+* detect and use NetBSD SKey library
+* abandon logdaemon SKey support
+* add md4/sha1/md5 support
+* add support for SecureID
+

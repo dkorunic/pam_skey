@@ -1,0 +1,14 @@
+Package: skey
+Priority: optional
+Section: admin
+Installed-Size: 283
+Maintainer: Dinko Korunic <kreator@srce.hr>
+Architecture: solaris2.7
+Source: logdaemon-5.8, pam_skey-1.1.0
+Version: 1.1.0
+Conffiles:
+ /etc/skey.access bcd5cbe247b028e85d3742d89be6d526
+Description: PAM S/Key module including S/Key utilities
+ This package includes PAM S/Key module that extends standard set of
+ modules, giving oportunity to use OTP. It also consists of various S/Key
+ utilities.
