@@ -1,0 +1,2 @@
+/* $Id: misc.h.in,v 1.2 2001/03/08 00:44:28 kreator Exp $ */
+static char mod_release[]="@PACKAGE@ @VERSION@ @MYHOST@";
