@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.8 2001/03/08 10:22:14 kreator Exp $
+# $Id: Makefile.in,v 1.9 2001/03/14 22:42:06 kreator Exp $
 #
 # This is too simple Makefile template. I think some things could be
 # rewritten -kre
@@ -42,7 +42,6 @@ install:
 			if test ! -f "$(INSTALLDIR)/$$file"; then \
 				echo "Installing $$file in $(INSTALLDIR)"; \
 				$(INSTALL) "$$file" "$(INSTALLDIR)/$$file"; \
-# Eek. -kre
 				(cd $(INSTALLDIR) && $(LN) "$$file" `echo $$file | cut -d. -f1,2`); \
 			else \
 				echo "$$file exists - will not overwrite it"; \

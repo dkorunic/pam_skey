@@ -1,0 +1,39 @@
+#!/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin
+GREP="/bin/grep"
+GREP2="/usr/local/bin/grep"
+
+if test ! -w "/etc/pam.conf"; then
+	echo "Error: problem with pam.conf"
+	exit 1
+fi
+
+RESULT="x"`grep pam_skey /etc/pam.conf`
+if test "$RESULT" = "x"; then
+	echo "Notice: seems like pam.conf has been reconfigured"
+	echo "Will try to restore original state anyway"
+fi
+
+echo "Processing /etc/pam.conf"
+cp /etc/pam.conf /etc/pam.conf.$$ || exit 1
+awk '{  line[NR]=$0 ""
+	begincp="# Begin update by package skey"
+	endcp="# End update by package skey" }
+END {
+for (i=1; i<=NR; i++)
+{
+	if (match(line[i], begincp))
+	{
+		++i
+		while (!match(line[i], endcp))
+		{
+			if (substr(line[i],1,1)=="#")
+				print substr(line[i],3)
+			++i
+		}
+	}
+	else
+		print line[i]
+}}' /etc/pam.conf.$$ > /etc/pam.conf
+rm /etc/pam.conf.$$
+echo "All done."

@@ -1,0 +1,314 @@
+2001-03-14 23:53  kreator
+
+	* ChangeLog: Added Changelog at last. Using cvs2cl.
+
+2001-03-14 23:42  kreator
+
+	* sample/DEBIAN/: conffiles, control, postinst, prerm: samples
+
+2001-03-14 23:42  kreator
+
+	* sample/pam.conf: pam.conf
+
+2001-03-14 23:42  kreator
+
+	* Makefile.in, RELEASENOTES, TODO: TODO, Makefile, release..
+
+2001-03-09 17:34  kreator
+
+	* pam_skey.c, pam_skey_access.c: Minor changes - mod_opt ==
+	_MOD_NONE
+
+2001-03-08 23:56  kreator
+
+	* pam_skey.c: Retab pam_skey.c
+
+2001-03-08 12:11  kreator
+
+	* README: Readme was bad looking.
+
+2001-03-08 11:22  kreator
+
+	* Makefile.in: Added linting.
+
+2001-03-08 11:10  kreator
+
+	* INSTALL, RELEASENOTES, pam_skey.c, pam_skey.h: Documentation
+	update, degarbage() macro renamed into _pam_degarbage()
+
+2001-03-08 01:47  kreator
+
+	* RELEASENOTES, RELEASENOTES, autoconf/configure.in, defs.h.in:
+	Misc.
+
+2001-03-08 01:44  kreator
+
+	* configure, defs.h.in, misc.h.in, pam_skey.c, pam_skey_access.c,
+	autoconf/acconfig.h, autoconf/configure.in: Misc changes
+
+2001-03-08 01:20  kreator
+
+	* Makefile.in, configure, defs.h.in, misc.h.in, pam_skey.c,
+	pam_skey_access.c, autoconf/config.guess, autoconf/config.sub,
+	autoconf/configure.in: Lots of misc changes.
+
+2001-03-08 00:02  kreator
+
+	* RELEASENOTES, pam_skey.c, pam_skey.h: 1.1.0, solaris2.7 puts '\n'
+	at the end of string - this fixes it.
+
+2001-03-07 21:29  kreator
+
+	* INSTALL, README: Misc documentation update.
+
+2001-03-07 20:51  kreator
+
+	* Makefile.in, RELEASENOTES, pam_skey.c, pam_skey.h,
+	pam_skey_access.c: file skeylogin.c function int skeyinfo() <...> 
+	case 1:   /* User not found */	fclose(mp->keyfile);	return -1; 
+			   <-------- obvious	    wrong return value <..>
+
+2001-03-05 07:58  kreator
+
+	* configure: I forgot to update configure in root
+
+2001-03-05 07:57  kreator
+
+	* Makefile.in, README, RELEASENOTES, autoconf/configure.in: 1.1.0 -
+	Rules for Makefile.in, README updates, etc.
+
+2001-03-04 23:09  kreator
+
+	* INSTALL: Documentation changes - INSTALL
+
+2001-03-04 19:18  kreator
+
+	* RELEASENOTES, pam_skey.h: Release.
+
+2001-03-04 19:05  kreator
+
+	* RELEASENOTES: Added releasenotes. Ready to publish.
+
+2001-03-04 18:43  kreator
+
+	* README: Credits - go out! :)
+
+2001-03-04 15:19  kreator
+
+	* Makefile.in, pam_skey.h: -pendantic in Makefile redo option
+	redefinitions in pam_skey.h
+
+2001-03-04 15:04  kreator
+
+	* README: README changes.
+
+2001-03-04 14:33  kreator
+
+	* INSTALL, README: Minor changes in INSTALL and README files.
+
+2001-03-03 23:24  kreator
+
+	* INSTALL, Makefile.in, README: Smaller set of changes to get $Id: ChangeLog,v 1.3 2001/03/14 22:56:02 kreator Exp $
+	working.
+
+2001-03-03 23:22  kreator
+
+	* README: Smaller set of changes in README files. Credits,
+	information, etc.
+
+2001-03-03 23:12  kreator
+
+	* autoconf/configure.in: Add $Id: ChangeLog,v 1.3 2001/03/14 22:56:02 kreator Exp $ to configure.in Perhaps should
+	make serial?
+
+2001-03-03 23:11  kreator
+
+	* configure, autoconf/configure.in: Small changes to configure.
+	Start talking in english, this croatian is PITA :)
+
+2001-03-03 22:56  kreator
+
+	* INSTALL: Dotjerivanje INSTALL-a
+
+2001-03-03 22:46  kreator
+
+	* COPYING, INSTALL, Makefile.in, README, configure, defs.h.in,
+	autoconf/acconfig.h, autoconf/configure.in, autoconf/install-sh,
+	autoconf/stamp-h.in: Initial revision
+
+2001-03-03 22:46  kreator
+
+	* COPYING, INSTALL, Makefile.in, README, configure, defs.h.in,
+	autoconf/acconfig.h, autoconf/configure.in, autoconf/install-sh,
+	autoconf/stamp-h.in: Imported from RCS versions
+
+2001-03-03 20:47  kreator
+
+	* pam_skey.c: Zaboravio \n kod fprintf(stderr, "s/key database
+	error...
+
+2001-03-01 23:47  kreator
+
+	* pam_skey_access.c: tab
+
+2001-03-01 22:34  kreator
+
+	* pam_skey.c, pam_skey.h: Dodana opcija _MOD_ONLY_ONE_TRY
+
+2001-03-01 21:10  kreator
+
+	* pam_skey.c: Potkrao se ozbiljan bug, radio sam memset(.., 0, ...)
+	nakon popunjavanja strukture u proslom releasu. Odmah ispravljeno..
+
+2001-03-01 19:36  kreator
+
+	* pam_skey.c, pam_skey_access.c: Radije da bude compile clean za
+	Solaris
+
+2001-03-01 17:48  kreator
+
+	* pam_skey_access.c: Ekstra poliranje ulaznih i izlaznih parametara
+
+2001-03-01 17:47  kreator
+
+	* pam_skey.c: Ekstra ciscenje i poliranje ulaznih i izlaznih
+	argumenata i njihovih tipova
+
+2001-03-01 17:34  kreator
+
+	* pam_skey.c, pam_skey_access.c: PAM_EXTERN u source prije glavnog
+	pam.h
+
+2001-03-01 17:32  kreator
+
+	* pam_skey.h: Izbacio PAM_EXTERN, mora ici u source prije
+	pamblabla.h
+
+2001-03-01 17:24  kreator
+
+	* pam_skey.h: Fix za empty_authtok
+
+2001-03-01 01:53  kreator
+
+	* pam_skey.c, pam_skey.h: malo pociscen kod, dodan makro
+	empty_authtok
+
+2001-03-01 01:46  kreator
+
+	* pam_skey.c, pam_skey_access.c: char ** cast za pam_get_user
+
+2001-02-28 01:04  kreator
+
+	* pam_skey.c, pam_skey.h, pam_skey_access.c: Sitnice
+
+2001-02-27 18:23  kreator
+
+	* pam_skey_access.c: Initial revision
+
+2001-02-26 23:16  kreator
+
+	* pam_skey.c, pam_skey.h: unsigned mod_opt
+
+2001-02-26 23:13  kreator
+
+	* pam_skey.c: Kako sam promijenio mod_opt na uint, onda je trebalo
+	i funkciju
+
+2001-02-26 23:13  kreator
+
+	* pam_skey.h: Kako sam promijenio mod_opt na uint, onda je trebalo
+	i prototipove
+
+2001-02-26 22:59  kreator
+
+	* pam_skey.h: Makroi potrebni po defaultu i pod Linuxom
+
+2001-02-26 22:00  kreator
+
+	* pam_skey.h: Initial revision
+
+2001-02-26 21:48  kreator
+
+	* pam_skey.c: zaboravio do kraja napisati check za port
+
+2001-02-26 21:46  kreator
+
+	* pam_skey.c: Nisam spomenuo pam_securid.c
+
+2001-02-26 20:13  kreator
+
+	* pam_skey.c: Split pam_skey.c i pam_skey.h Dodana struktura za
+	parse
+
+2001-02-25 13:08  kreator
+
+	* pam_skey.c: response treba biti NULL by default, za svaki slucaj.
+	cemu li sam uopce to micao, eh.
+
+2001-02-25 13:07  kreator
+
+	* pam_skey.c: Jos promjena - komentari, kod, provjera NULL
+	vrijednosti kod nekih ispisa
+
+2001-02-25 12:50  kreator
+
+	* pam_skey.c: Rijesio par ozbiljnih propusta.
+
+2001-02-25 02:37  kreator
+
+	* pam_skey.c: neke nepravilnosti, tipa return value od skeyaccess -
+	permit==1 uvijek, pa onda i provjeravaj shodno tome.
+
+2001-02-25 02:30  kreator
+
+	* pam_skey.c: Bugfixes.
+
+2001-02-25 02:21  kreator
+
+	* pam_skey.c: Dodao detekciju PAM_AUTHTOK
+
+2001-02-24 23:24  kreator
+
+	* pam_skey.c: skeyinfo() zatvori file ako je zadnji
+	parametar!=NULL. Stoga sam radim challenge string i prosljedjujem
+	NULL.  sredih check drugog praznog responsa.
+
+2001-02-23 15:41  kreator
+
+	* pam_skey.c: Ciscenja, header
+
+2001-02-23 13:38  kreator
+
+	* pam_skey.c: Niz izmjena. Nije bilo potrebno raditi retries, sve
+	je OK osim sto fgets() u origigi skey libraryju radi probleme.
+	Cudno!
+
+2001-02-23 12:56  kreator
+
+	* pam_skey.c: Niz promjena, bugfixeva, ispravaka od zadnje verzije.
+	Compiles cleanly.
+
+2001-02-23 12:13  kreator
+
+	* pam_skey.c: Puno promjena. Dodani sigurnosni makro-i iz Linux-PAM
+	paketa, parsanje argv[] prebaceno u funkciju, kao i konverzacija sa
+	korisnikom. Dodatni verbose. Niz minornih promjena, kao i promjena
+	zaglavlja.
+
+2001-02-23 01:26  kreator
+
+	* pam_skey.c: dodatni komentari. prije dodao preciznije pogreske za
+	skeyverify(). i dalje ne radi verify - ali idemo dalje testirati..
+
+2001-02-23 00:49  kreator
+
+	* pam_skey.c: razno..
+
+2001-02-23 00:03  kreator
+
+	* pam_skey.c: Dodan RCS ID.
+
+2001-02-23 00:01  kreator
+
+	* pam_skey.c: Initial revision
+
