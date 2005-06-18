@@ -1,3 +1,8 @@
+2001-10-11 20:03  kreator
+
+	* configure, defs.h.in, autoconf/config.guess, autoconf/config.sub,
+	autoconf/configure.in: - update defs and configure to 2.50
+
 2001-10-06 11:50  kreator
 
 	* RELEASENOTES: - do releasenotes.
@@ -132,7 +137,7 @@
 
 2001-03-03 23:24  kreator
 
-	* INSTALL, Makefile.in, README: Smaller set of changes to get $Id: ChangeLog,v 1.7 2001/10/06 09:52:37 kreator Exp $
+	* INSTALL, Makefile.in, README: Smaller set of changes to get $Id: ChangeLog,v 1.1.1.1 2005/06/18 12:11:24 kreator Exp $
 	working.
 
 2001-03-03 23:22  kreator
@@ -142,7 +147,7 @@
 
 2001-03-03 23:12  kreator
 
-	* autoconf/configure.in: Add $Id: ChangeLog,v 1.7 2001/10/06 09:52:37 kreator Exp $ to configure.in Perhaps should
+	* autoconf/configure.in: Add $Id: ChangeLog,v 1.1.1.1 2005/06/18 12:11:24 kreator Exp $ to configure.in Perhaps should
 	make serial?
 
 2001-03-03 23:11  kreator
