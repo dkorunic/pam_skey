@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.9 2001/10/06 09:45:47 kreator Exp $
+dnl $Id: configure.in,v 1.1.1.1 2005/06/18 12:11:24 kreator Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(pam_skey.c)
 
@@ -65,8 +65,8 @@ AC_ARG_WITH(skey-lib, [  --with-skey-lib=DIR     Directory containing skey libra
 AC_ARG_WITH(skey-inc, [  --with-skey-inc=DIR     Directory containing skey include files], CFLAGS="${CFLAGS} -I${withval}")
 
 dnl Check for skey library
-AC_CHECK_LIB(socket, socket, LIBS="${LIBS} -lsocket")
-AC_CHECK_LIB(nsl, gethostbyname, LIBS="${LIBS} -lnsl")
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_LIB(nsl, gethostbyname)
 AC_CHECK_LIB(skey, skeyverify, SKEYLIB="-lskey", AC_MSG_ERROR(skey library not found or unknown interface))
 AC_CHECK_LIB(skey, skeyaccess, AC_DEFINE(HAVE_SKEYACCESS))
 AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),

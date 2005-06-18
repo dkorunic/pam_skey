@@ -1,5 +1,5 @@
 /* 
- * (c) 2001 Dinko Korunic, kreator@fly.srk.fer.hr
+ * (c) 2001 Dinko Korunic, kreator@srce.hr
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -18,7 +18,7 @@
  * under the terms of the GNU General Public License under which this
  * program is distributed.
  *
- * $Id: pam_skey.h,v 1.15 2001/08/16 08:22:37 kreator Exp $
+ * $Id: pam_skey.h,v 1.2 2005/06/18 12:36:18 kreator Exp $
  */
 
 /* Prototypes */

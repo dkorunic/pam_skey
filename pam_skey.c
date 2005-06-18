@@ -1,5 +1,5 @@
 /* 
- * (c) 2001 Dinko Korunic, kreator@fly.srk.fer.hr
+ * (c) 2001 Dinko Korunic, kreator@srce.hr
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id: pam_skey.c,v 1.37 2001/08/16 08:22:37 kreator Exp $";
+static char rcsid[] = "$Id: pam_skey.c,v 1.2 2005/06/18 12:36:18 kreator Exp $";
 
 #include "defs.h"
 
@@ -59,7 +59,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   char *response = NULL; /* response spacer */
   struct skey skey; /* structure that contains skey information */
   int status; /* return status spacer */
-  unsigned mod_opt=_MOD_NONE_ON; /* module options */
+  unsigned mod_opt = _MOD_NONE_ON; /* module options */
 
   /* Get module options */
   mod_getopt(&mod_opt, argc, argv);
@@ -165,7 +165,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
    * when user not found in keyfile. -kre */
     fprintf(stderr, "s/key database error\n");
     syslog(LOG_NOTICE, "s/key database error");
-    return PAM_AUTHINFO_UNAVAIL;
+    return PAM_AUTH_ERR;
 #endif
   /* 1: No such user in database */
   case 1:
@@ -176,12 +176,17 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
 #endif
     if (mod_opt & _MOD_DEBUG)
       syslog(LOG_DEBUG, "no s/key for %s\n", username);
-    return PAM_AUTHINFO_UNAVAIL;
+    return PAM_AUTH_ERR;
   }
 
   /* Make challenge string */
+#if defined(SKEY_MAX_HASHNAME_LEN) && defined(SKEY_MAX_SEED_LEN)
+  snprintf(challenge, CHALLENGE_MAXSIZE, "otp-%.*s %d %.*s",
+      SKEY_MAX_HASHNAME_LEN, skey_get_algorithm(), skey.n - 1, SKEY_MAX_SEED_LEN, skey.seed);
+#else
   snprintf(challenge, CHALLENGE_MAXSIZE, "s/key %d %s",
       skey.n - 1, skey.seed);
+#endif
 
   if (mod_opt & _MOD_DEBUG)
     syslog(LOG_DEBUG, "got challenge %s for %s", challenge,
@@ -251,12 +256,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
 
         /* Got again empty response. Bailout and don't save auth token */
         if (empty_authtok(response))
-          return PAM_IGNORE;
+          return PAM_AUTH_ERR;
       }
       else
       /* There was echo on already - just get out and don't save auth token
        * for other modules */
-        return PAM_IGNORE;
+        return PAM_AUTH_ERR;
     }
 
     /* XXX - ECHO ON puts '\n' at the end in Solaris 2.7! This is
@@ -269,11 +274,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
       syslog(LOG_NOTICE, "unable to save auth token");
       return PAM_SERVICE_ERR;
     }
+
+    /* cleanup conversation */
+    _pam_delete(response);
   } 
 
   /* Verify S/Key */
   status = skeyverify(&skey, response);
-  _pam_delete(response);
 
   switch (status)
   {
