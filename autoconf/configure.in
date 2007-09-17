@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.1.1.1 2005/06/18 12:11:24 kreator Exp $
+dnl $Id$
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(pam_skey.c)
 
@@ -24,7 +24,7 @@ esac
 
 dnl Package information
 PACKAGE=pam_skey
-VERSION=1.1
+VERSION=1.1.5
 
 dnl Standard installation path
 AC_PREFIX_DEFAULT(/usr)

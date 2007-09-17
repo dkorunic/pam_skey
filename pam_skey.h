@@ -18,7 +18,7 @@
  * under the terms of the GNU General Public License under which this
  * program is distributed.
  *
- * $Id: pam_skey.h,v 1.2 2005/06/18 12:36:18 kreator Exp $
+ * $Id$
  */
 
 /* Prototypes */

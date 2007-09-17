@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id: pam_skey_access.c,v 1.2 2005/06/18 12:36:18 kreator Exp $";
+static char rcsid[] = "$Id$";
 
 #include "defs.h"
 
@@ -34,8 +34,7 @@ static char rcsid[] = "$Id: pam_skey_access.c,v 1.2 2005/06/18 12:36:18 kreator 
 #include <sys/types.h>
 #include <syslog.h>
 
-#define PAM_EXTERN extern
-#undef PAM_STATIC
+#define PAM_SM_AUTH
 
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
@@ -43,6 +42,14 @@ static char rcsid[] = "$Id: pam_skey_access.c,v 1.2 2005/06/18 12:36:18 kreator 
 #include "skey.h"
 #include "pam_skey.h"
 #include "misc.h"
+
+#if defined linux || defined BSD
+#define _PAM_CONST const
+#define _PAM_MSG_CAST
+#else
+#define _PAM_CONST
+#define _PAM_MSG_CAST (struct pam_message **)
+#endif
 
 PAM_EXTERN int pam_sm_setcred (pam_handle_t *pamh, int flags,
   int argc, const char **argv)
@@ -63,16 +70,13 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
-#if defined LINUX || defined BSD
-  if (pam_get_user(pamh, (const char **)&username, "login:")!=PAM_SUCCESS)
-#else
-  if (pam_get_user(pamh, (char **)&username, "login:")!=PAM_SUCCESS)
-#endif
+  if (pam_get_user(pamh, (_PAM_CONST char **)&username, "login:")
+      != PAM_SUCCESS)
   {
     fprintf(stderr, "cannot determine username\n");
     if (mod_opt & _MOD_DEBUG)
       syslog(LOG_DEBUG, "cannot determine username");
-    return PAM_AUTHINFO_UNAVAIL;
+    return PAM_USER_UNKNOWN;
   }
 
   if (mod_opt & _MOD_DEBUG)
@@ -81,20 +85,12 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   /* Check S/Key access permissions - user, host and port. Also include
    * sanity checks */
   /* Get host.. */
-#if defined LINUX || defined BSD
-  if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
-#else
-  if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
-#endif
-    != PAM_SUCCESS)
+    if (pam_get_item(pamh, PAM_RHOST, (_PAM_CONST void **)&host)
+        != PAM_SUCCESS)
       host = NULL;
   /* ..and port */
-#ifdef LINUX
-  if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
-#else
-  if (pam_get_item(pamh, PAM_TTY, (void **)&port)
-#endif
-    != PAM_SUCCESS)
+    if (pam_get_item(pamh, PAM_TTY, (_PAM_CONST void **)&port)
+        != PAM_SUCCESS)
       port = NULL;
 
   if (mod_opt & _MOD_DEBUG)
@@ -109,7 +105,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     fprintf(stderr, "no such user\n");
     syslog(LOG_NOTICE, "cannot find user %s",
       username);
-    return PAM_AUTHINFO_UNAVAIL;
+    return PAM_USER_UNKNOWN; /* perhaps even return PAM_ABORT here? */
   }
 
 #ifdef HAVE_SKEYACCESS

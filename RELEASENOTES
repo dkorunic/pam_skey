@@ -1,5 +1,7 @@
-RELEASE 1.1.4 - Sat Jun 18 14:28:31 CEST 2005
+RELEASE 1.1.5 - Mon, 17 Sep 2007 21:20:10 +0200
 
-* fix for _pam_delete() if we got AUTHTOK
+  * fixed _pam_delete() bug: it got done before skeyverify(), instead
+    after final verification
+  * bunch of smaller fixes
 
-- Dinko Korunic <kreator@srce.hr>
+  -- Dinko Korunic <kreator@srce.hr>

@@ -19,7 +19,7 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id: pam_skey.c,v 1.2 2005/06/18 12:36:18 kreator Exp $";
+static char rcsid[] = "$Id$";
 
 #include "defs.h"
 
@@ -34,8 +34,7 @@ static char rcsid[] = "$Id: pam_skey.c,v 1.2 2005/06/18 12:36:18 kreator Exp $";
 #include <sys/types.h>
 #include <syslog.h>
 
-#define PAM_EXTERN extern
-#undef PAM_STATIC
+#define PAM_SM_AUTH
 
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
@@ -43,6 +42,14 @@ static char rcsid[] = "$Id: pam_skey.c,v 1.2 2005/06/18 12:36:18 kreator Exp $";
 #include "skey.h"
 #include "pam_skey.h"
 #include "misc.h"
+
+#if defined linux || defined BSD
+#define _PAM_CONST const
+#define _PAM_MSG_CAST
+#else
+#define _PAM_CONST
+#define _PAM_MSG_CAST (struct pam_message **)
+#endif
 
 PAM_EXTERN int pam_sm_setcred (pam_handle_t *pamh, int flags,
   int argc, const char **argv)
@@ -65,11 +72,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   mod_getopt(&mod_opt, argc, argv);
 
   /* Get username */
-#if defined LINUX || defined BSD
-  if (pam_get_user(pamh, (const char **)&username, "login:")
-#else
-  if (pam_get_user(pamh, (char **)&username, "login:")
-#endif
+  if (pam_get_user(pamh, (_PAM_CONST char **)&username, "login:")
       != PAM_SUCCESS)
   {
     fprintf(stderr, "cannot determine username\n");
@@ -91,19 +94,11 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
     struct passwd *pwuser; /* structure for getpw() */
 
     /* Get host.. */
-#if defined LINUX || defined BSD
-    if (pam_get_item(pamh, PAM_RHOST, (const void **)&host)
-#else
-    if (pam_get_item(pamh, PAM_RHOST, (void **)&host)
-#endif
+    if (pam_get_item(pamh, PAM_RHOST, (_PAM_CONST void **)&host)
         != PAM_SUCCESS)
       host = NULL; /* couldn't get host */
     /* ..and port */
-#if defined LINUX || defined BSD
-    if (pam_get_item(pamh, PAM_TTY, (const void **)&port)
-#else
-    if (pam_get_item(pamh, PAM_TTY, (void **)&port)
-#endif
+    if (pam_get_item(pamh, PAM_TTY, (_PAM_CONST void **)&port)
         != PAM_SUCCESS)
       port = NULL; /* couldn't get port */
 
@@ -196,11 +191,7 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
   if (mod_opt & _MOD_USE_FIRST_PASS)
   {
     /* Try to extract authtoken */
-#if defined LINUX || defined BSD
-    if (pam_get_item(pamh, PAM_AUTHTOK, (const void **)&response)
-#else
-    if (pam_get_item(pamh, PAM_AUTHTOK, (void **)&response)
-#endif
+    if (pam_get_item(pamh, PAM_AUTHTOK, (_PAM_CONST void **)&response)
         != PAM_SUCCESS)
     {
       if (mod_opt & _MOD_DEBUG)
@@ -274,9 +265,6 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
       syslog(LOG_NOTICE, "unable to save auth token");
       return PAM_SERVICE_ERR;
     }
-
-    /* cleanup conversation */
-    _pam_delete(response);
   } 
 
   /* Verify S/Key */
@@ -294,15 +282,23 @@ PAM_EXTERN int pam_sm_authenticate(pam_handle_t *pamh, int flags,
       if (mod_opt & _MOD_DEBUG)
         syslog(LOG_DEBUG, "verify for %s failed, database"
             " unchanged", username);
+
+      /* cleanup conversation (error occured) */
+      _pam_delete(response);
+
       return PAM_AUTH_ERR;
   }
+
+  /* cleanup conversation (it was valid) */
+  _pam_delete(response);
 
   /* Success by default */
   return PAM_SUCCESS;
 }
 
 /* Get module optional parameters */
-static void mod_getopt(unsigned *mod_opt, int mod_argc, const char **mod_argv)
+static void mod_getopt(unsigned *mod_opt, int mod_argc, const char
+		**mod_argv)
 {
   int i;
 
@@ -356,11 +352,7 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   message.msg = msg_text;
 
   /* Do conversation and see if all is OK */
-#if defined LINUX || defined BSD
-  if (pam_get_item(pamh, PAM_CONV, (const void **)&conv)
-#else
-  if (pam_get_item(pamh, PAM_CONV, (void **)&conv)
-#endif
+  if (pam_get_item(pamh, PAM_CONV, (_PAM_CONST void **)&conv)
       != PAM_SUCCESS)
   {
     if (*mod_opt & _MOD_DEBUG)
@@ -369,13 +361,8 @@ static int mod_talk_touser(pam_handle_t *pamh, unsigned *mod_opt,
   }
 
   /* Convert into pam_response - only 1 reply expected */
-#if defined LINUX || defined BSD
-  if (conv->conv(1, &pmessage, &presponse,
+  if (conv->conv(1, _PAM_MSG_CAST &pmessage, &presponse,
         conv->appdata_ptr)
-#else
-  if (conv->conv(1, (struct pam_message **)&pmessage, &presponse,
-        conv->appdata_ptr)
-#endif
     != PAM_SUCCESS)
   {
     _pam_delete(presponse->resp);

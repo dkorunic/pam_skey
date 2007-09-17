@@ -1404,7 +1404,7 @@ _ACEOF
 esac
 
 PACKAGE=pam_skey
-VERSION=1.1
+VERSION=1.1.5
 
 
 

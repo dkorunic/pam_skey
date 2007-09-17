@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.1.1.1 2005/06/18 12:11:24 kreator Exp $
+# $Id$
 #
 # This is too simple Makefile template. I think some things could be
 # rewritten -kre
@@ -36,18 +36,17 @@ lint-pam_skey_access:
 
 install:
 	@if test ! -d $(INSTALLDIR); then \
-		echo "Missing $(INSTALLDIR). Problem with PAM installation?"; \
-	else \
-		for file in $(PAM_FILES); do \
-			if test ! -f "$(INSTALLDIR)/$$file"; then \
-				echo "Installing $$file in $(INSTALLDIR)"; \
-				$(INSTALL) "$$file" "$(INSTALLDIR)/$$file"; \
-				(cd $(INSTALLDIR) && $(LN) "$$file" `echo $$file | cut -d. -f1,2`); \
-			else \
-				echo "$$file exists - will not overwrite it"; \
-			fi \
-		done \
+		mkdir -p $(INSTALLDIR); \
 	fi
+	@for file in $(PAM_FILES); do \
+		if test ! -f "$(INSTALLDIR)/$$file"; then \
+			echo "Installing $$file in $(INSTALLDIR)"; \
+			$(INSTALL) "$$file" "$(INSTALLDIR)/$$file"; \
+			(cd $(INSTALLDIR) && $(LN) "$$file" `echo $$file | cut -d. -f1,2`); \
+		else \
+			echo "$$file exists - will not overwrite it"; \
+		fi \
+	done \
 
 clean:
 	$(RM) a.out core *.so.1 *.o *.bak
