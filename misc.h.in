@@ -1,0 +1,2 @@
+/* $Id$ */
+static char mod_release[] = "@PACKAGE@ @VERSION@ @MYHOST@";

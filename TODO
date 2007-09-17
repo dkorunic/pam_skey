@@ -1,0 +1,25 @@
+$Id$
+
+TODO/worklist:
+(NOTICE: not necessarily in "right" order)
+
+* detect and use NetBSD SKey library
+
+  Seems like FreeBSD and NetBSD libskey is completely compatibile with
+  Venema's logdaemon/skey since those two are derivatives from latter.
+
+* abandon logdaemon SKey support
+
+  Nope. Perhaps add support for Linux-SKey library?
+
+* add md4/sha1/md5 support
+
+  MD4/5 can be done through Makefile for logdaemon..
+
+* add support for Linux-SKey library
+
+* add support for SecureID
+
+* drink a good cup of coffe
+
+* get married

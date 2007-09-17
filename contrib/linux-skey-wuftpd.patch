@@ -1,0 +1,55 @@
+--- src/ftpd.c.orig	Thu Mar 29 13:57:34 2001
++++ src/ftpd.c	Thu Mar 29 13:58:50 2001
+@@ -1661,13 +1661,42 @@
+ 
+     /* Display s/key challenge where appropriate. */
+ 
+-    if (pwd == NULL || skeychallenge(&skey, pwd->pw_name, sbuf))
++    int skeyfound;
++    skeyfound = skeyinfo(&skey, pwd->pw_name, sbuf);
++
++    if (pwd == NULL || skeyfound != 1)
+ 	sprintf(buf, "Password required for %s.", name);
+     else
+ 	sprintf(buf, "%s %s for %s.", sbuf,
+ 		pwok ? "allowed" : "required", name);
+     return (buf);
+ }
++
++char   *skey_crypt(char *pp, char *salt, struct passwd *pwd, int pwok)
++{
++    struct skey skey;
++    char   *p;
++    char   *crypt();
++
++    /* Try s/key authentication even when the UNIX password is permitted. */
++
++    if (pwd != 0 && skeyinfo(&skey, pwd->pw_name, (char *) 0) == 1
++        && skeyverify(&skey, pp) == 0) {
++        /* s/key authentication succeeded */
++        return (pwd->pw_passwd);
++    }
++
++    /* When s/key authentication does not work, always invoke crypt(). */
++
++    p = crypt(pp, salt);
++    if (pwok && pwd != 0 && strcmp(p, pwd->pw_passwd) == 0)
++        return (pwd->pw_passwd);
++
++    /* The user does not exist or entered bad input. */
++
++    return (":");
++}
++
+ #endif
+ 
+ int login_attempts;		/* number of failed login attempts */
+@@ -2087,7 +2116,7 @@
+ 	pwok = skeyaccess(name, NULL, remotehost, remoteaddr);
+ #else
+ 	/* this is the new way */
+-	pwok = skeyaccess(pw, NULL, remotehost, remoteaddr);
++	pwok = skeyaccess(pw->pw_name, remotehost, NULL);
+ #endif
+ 	reply(331, "%s", skey_challenge(name, pw, pwok));
+ #else

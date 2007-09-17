@@ -1,0 +1,108 @@
+dnl $Id$
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(pam_skey.c)
+
+dnl Define autoconf directory and output include file position
+AC_CONFIG_AUX_DIR(autoconf)
+AC_CONFIG_HEADER(defs.h)
+
+dnl Set language and save it
+AC_LANG_C
+AC_LANG_SAVE
+
+dnl Get system type
+AC_CANONICAL_HOST
+MYHOST=$host_os
+case "$host_os" in
+*linux*)
+  AC_DEFINE(LINUX)
+  ;;
+*bsd*)
+  AC_DEFINE(BSD)
+  ;;
+esac
+
+dnl Package information
+PACKAGE=pam_skey
+VERSION=1.1.5
+
+dnl Standard installation path
+AC_PREFIX_DEFAULT(/usr)
+
+dnl Check for programs
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_PATH_PROG(RM, rm)
+AC_PATH_PROG(LN, ln)
+AC_PATH_PROG(CP, cp)
+AC_PATH_PROG(AWK, awk)
+AC_PROG_INSTALL
+
+dnl Check standard headers
+AC_HEADER_STDC
+AC_CHECK_HEADERS(stdlib.h pwd.h sys/types.h syslog.h sys/syslog.h string.h strings.h, , AC_MSG_ERROR(some basic headers are missing))
+AC_CHECK_HEADERS(security/pam_appl.h security/pam_modules.h, PAMLIB="-lpam", AC_MSG_ERROR(broken libpam installation))
+
+dnl Set various compile time stuff
+#AC_C_CONST
+#AC_C_CHAR_UNSIGNED
+
+dnl Check for strings.h
+AC_CACHE_CHECK(whether string.h and strings.h may both be included,
+gcc_cv_header_string,
+[AC_TRY_COMPILE([#include <string.h>
+#include <strings.h>], , gcc_cv_header_string=yes,
+gcc_cv_header_string=no)])
+if test "$gcc_cv_header_string" = "yes"; then
+  AC_DEFINE(STRING_WITH_STRINGS)
+fi
+
+dnl Various function checking
+AC_CHECK_FUNCS(fprintf snprintf syslog strncmp, , AC_MSG_ERROR(some basic C functions cannot be found))
+
+dnl Check for paths
+AC_ARG_WITH(skey-lib, [  --with-skey-lib=DIR     Directory containing skey library], LIBS="${LIBS} -L${withval}")
+AC_ARG_WITH(skey-inc, [  --with-skey-inc=DIR     Directory containing skey include files], CFLAGS="${CFLAGS} -I${withval}")
+
+dnl Check for skey library
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_LIB(nsl, gethostbyname)
+AC_CHECK_LIB(skey, skeyverify, SKEYLIB="-lskey", AC_MSG_ERROR(skey library not found or unknown interface))
+AC_CHECK_LIB(skey, skeyaccess, AC_DEFINE(HAVE_SKEYACCESS))
+AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),
+  AC_CHECK_LIB(skey, skeylookup, AC_DEFINE(HAVE_SKEYLOOKUP))
+)
+
+dnl Check against -G linker flag
+hold_ldflags=$LDFLAGS
+AC_MSG_CHECKING(for the ld -shared flag)
+LDFLAGS="${LDFLAGS} -shared"
+AC_TRY_LINK([#include <stdio.h>], [void blahblah(){fprintf(stderr, "");}],
+found=yes, found=no)
+LDFLAGS=$hold_ldflags
+AC_MSG_RESULT($found)
+if test "$found" = "yes"; then
+  LDFLAGS="${LDFLAGS} -shared"
+else
+  LDFLAGS="${LDFLAGS} -G"
+fi
+
+dnl Check against ld -export-dynamic flag
+hold_ldflags=$LDFLAGS
+AC_MSG_CHECKING(for the ld -export-dynamic flag)
+LDFLAGS="${LDFLAGS} -Wl,-export-dynamic"
+AC_TRY_LINK(, [int i;], found=yes, found=no)
+LDFLAGS=$hold_ldflags
+AC_MSG_RESULT($found)
+if test "$found" = "yes"; then
+  LDFLAGS="${LDFLAGS} -Wl,-export-dynamic"
+fi
+
+AC_SUBST(LDFLAGS)
+AC_SUBST(SKEYLIB)
+AC_SUBST(PAMLIB)
+AC_SUBST(MYHOST)
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+
+AC_OUTPUT(Makefile misc.h)

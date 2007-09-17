@@ -1,0 +1,102 @@
+$Id$
+
+Required
+--------
+For building this package you will probably need original Wietse Venema's
+logdaemon package if you are on system without libskey (like Linux).
+However, this package will try to use system libskey as well as Yuri
+Yudin's S/Key package. You should have functional `libskey.a' or
+`libskey.so' (library containing some of the functions we are using) and
+other required utilities (`keyinfo', `keyprint', `skeyaccess', `key',
+`keyinit') as you would normally do.
+
+Configuring and making
+----------------------
+Next step should be running `configure' script, that will try to determine
+parameters of your system. Use `--with-skey-inc=PATH_TO_SKEY_INCLUDES' and
+`--with-skey-lib=PATH_TO_SKEY_LIBRARY' to specify where to find valid
+S/Key installation, if it is not in standard paths. For example:
+
+  ./configure --prefix=/usr/local --with-skey-inc=../logdaemon-5.8/skey \
+    --with-skey-lib=../logdaemon-5.8/skey
+
+It will test various aspects of include files, libraries, library calls,
+and trace potential problems. It should leave valid Makefile afterwards
+for make.
+
+Installation
+------------
+If you did not specified standard prefix with `--prefix=PATH', default
+installation path will be `/usr/lib/security'. There should reside
+`pam_skey.so.1' and `pam_skey_access.so.1', as well as symlinks for them
+ending in `.so' suffix.
+
+Configuring
+-----------
+If you did all this successfully, now it is time for you to setup your
+local PAM configuration files. They can be either pam.conf either
+pam.d/<service>, depending on PAM implementation. I am including examples
+of standard PAM modules stacking. For detailed module options check
+chapter `Options'.
+
+pam.conf:
+  su  auth  sufficient pam_skey.so.1
+  su  auth  required   pam_skey_access.so.1
+  su  auth  required   pam_unix.so.1  try_first_pass
+
+pam.d/su:
+  auth  requisite   pam_securetty.so
+  auth  requisite   pam_nologin.so
+  auth  required    pam_env.so
+  auth  sufficient  pam_skey.so
+  auth  requisite   pam_skey_access.so
+  auth  required    pam_unix.so       try_first_pass
+
+For more detailed description, check local pam manpages.
+NOTE: Solaris does not approve option `use_first_pass' for `pam_unix.so'
+module if it not `optional'. Beware. As a solution, simply specify
+`try_first_pass' and if skey fails, it will again prompt for password.
+
+Fine tuning
+-----------
+If you want to be sure that people that do not fit in range of addresses
+mentioned in skey.access use S/Keys, you can specify it this way:
+
+  1) enter correct ACLs in skey.access
+  2) turn off access check for pam_skey.so (turned off by default)
+  3) make pam_skey_access.so requisite/required module *after* pam_skey.so
+
+This way you will get this behavior: all people can use S/Keys, since
+they are not checked in ACL. If someone uses plaintext password,
+pam_skey.so will fail and control will be given to next module (since
+pam_skey.so is sufficient, but not required). Next module -
+pam_skey_access.so - will check ACL, and if it fails, complete pam_auth
+process will fail, and plaintext password from host that is denied will
+fail.
+That is emulation of original behavior of Venema's skeylogin that most of
+the people have been using.
+NOTE: You do not have to use pam_skey_access.so if you do not plan to
+check ACLs.
+
+Options
+-------
+This module understands following options that can be specified in pam
+configuration files:
+  debug                 - Turns on debugging output through syslog() calls
+  echo=off              - Turns off PAM_ECHO, service will not show passwd
+                          on screen when typing. By default is this option
+                          used.
+  echo=on               - Inverse of the above option
+  access_check=on       - Checks S/Key access through skeyaccess() call,
+                          it will check keyaccess file
+  access_check=off      - Obviously, inverse of the above option. By
+                          default is this option used.
+  use_first_pass        - Helpful for stacking PAM modules, it will try to
+                          use passwd string from previous module if it
+                          possible
+  try_first_pass        - Alias for the above
+  only_one_try          - It allows only one password try per PAM session
+
+Licence
+-------
+See COPYING file.

@@ -1,0 +1,55 @@
+# $Id$
+#
+# This is too simple Makefile template. I think some things could be
+# rewritten -kre
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+#$(DESTDIR) should suffice for packaging
+INSTALLDIR=$(DESTDIR)@libdir@/security
+
+CC=@CC@
+CFLAGS=@CFLAGS@ -Wall -fPIC -DPIC -pedantic
+LIBS=@LIBS@ @SKEYLIB@ @PAMLIB@
+LDFLAGS=@LDFLAGS@
+
+INSTALL=@INSTALL@ -m 644
+RM=@RM@ -f
+CP=@CP@ -f
+LN=@LN@ -s
+AWK=@AWK@
+
+PAM_FILES=pam_skey.so.1 pam_skey_access.so.1
+
+all: $(PAM_FILES)
+
+pam_skey.so.1: pam_skey.o
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS) $(LDFLAGS)
+
+pam_skey_access.so.1: pam_skey_access.o
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS) $(LDFLAGS)
+
+lint-pam_skey:
+	lclint $(CFLAGS) pam_skey.c
+
+lint-pam_skey_access:
+	lclint $(CFLAGS) pam_skey_access.c
+
+install:
+	@if test ! -d $(INSTALLDIR); then \
+		mkdir -p $(INSTALLDIR); \
+	fi
+	@for file in $(PAM_FILES); do \
+		if test ! -f "$(INSTALLDIR)/$$file"; then \
+			echo "Installing $$file in $(INSTALLDIR)"; \
+			$(INSTALL) "$$file" "$(INSTALLDIR)/$$file"; \
+			(cd $(INSTALLDIR) && $(LN) "$$file" `echo $$file | cut -d. -f1,2`); \
+		else \
+			echo "$$file exists - will not overwrite it"; \
+		fi \
+	done \
+
+clean:
+	$(RM) a.out core *.so.1 *.o *.bak
+
+distclean: clean
+	$(RM) config.status config.cache config.log defs.h misc.h Makefile

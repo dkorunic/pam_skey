@@ -1,0 +1,71 @@
+#!/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/bin:/bin
+
+GREP="/bin/grep"
+GREP2="/usr/local/bin/grep"
+if test ! -x $GREP && test ! -x $GREP2; then
+	echo "Error: missing grep, you will have to manually operate"
+	exit 0
+fi
+
+LDD="/bin/ldd"
+RESULT="x"`ldd /bin/login | grep pam`
+if test ! "$RESULT" = "x";
+then
+	echo "Notice: /bin/login already pam compatibile"
+else
+	echo "Notice: detected non-pam /bin/login, upgrading it"
+	mv "/bin/login" "/bin/login.old"
+	cp "/bin/login.system" "/bin/login"
+fi	
+
+if test ! -w "/etc/skeykeys"; then
+	echo "Notice: missing skeys database, creating one"
+	touch "/etc/skeykeys"
+	chmod 600 "/etc/skeykeys"
+fi
+
+AWK="/bin/awk"
+AWK2="/usr/local/bin/awk"
+if test ! -x $AWK && test ! -x $AWK2; then
+	echo "Error: missing awk, you will have to manually modify pam.conf"
+	exit 0
+fi
+
+if test ! -w "/etc/pam.conf"; then
+        echo "Error: problem with pam.conf"
+        exit 1
+fi
+
+RESULT="x"`grep pam_skey /etc/pam.conf`
+if test ! "$RESULT" = "x"; then
+	echo "Notice: pam.conf already configured for pam_skey"
+	exit 0
+fi
+
+if test ! -r "/etc/pam.conf.dpkg-old";
+then
+	echo "Preserving old pam.conf in /etc/pam.conf.dpkg-old"
+	cp /etc/pam.conf /etc/pam.conf.dpkg-old
+else
+	echo "Notice: Backup copy of pam.conf already exists"
+fi
+
+echo "Processing /etc/pam.conf"
+cp /etc/pam.conf /etc/pam.conf.$$ || exit 1
+awk '{ 
+	begincp="# Begin update by package skey"
+	endcp="# End update by package skey"
+	trailer=" -- DO NOT DELETE THIS LINE!"
+	if ($2=="auth" && match ($4, "pam_unix"))
+	{
+		print begincp trailer
+		print "# " $0
+		print $1 " auth sufficient /usr/lib/security/pam_skey.so.1"
+		print $0 " try_first_pass"
+		print endcp trailer
+	}
+	else
+		print $0 }' /etc/pam.conf.$$ > /etc/pam.conf
+rm /etc/pam.conf.$$
+echo "All done."
