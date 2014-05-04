@@ -54,5 +54,5 @@ distclean: clean
 
 lib:
 ifeq ($(INTERNAL_SKEYLIB),yes)
-	$(MAKE) -C libskey libskey.a
+	$(MAKE) CC=$(CC) -C libskey libskey.a
 endif

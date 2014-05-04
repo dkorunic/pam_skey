@@ -4040,8 +4040,8 @@ fi
 
 
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: skey library not found or unknown interface" >&5
-$as_echo "$as_me: WARNING: skey library not found or unknown interface" >&2;}
+  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: S/Key library not found... using original Venema S/Key internal library" >&5
+$as_echo "$as_me: WARNING: S/Key library not found... using original Venema S/Key internal library" >&2;}
     INTERNAL_SKEYLIB="yes"
     SKEYLIB="-lskey -Llibskey"
     CFLAGS="${CFLAGS} -Ilibskey"

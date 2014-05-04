@@ -73,7 +73,7 @@ AC_CHECK_LIB(skey, skeyverify,
     AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),
         AC_CHECK_LIB(skey, skeylookup, AC_DEFINE(HAVE_SKEYLOOKUP)))
     ],
-    [AC_MSG_WARN(skey library not found or unknown interface)
+    [AC_MSG_WARN(S/Key library not found... using original Venema S/Key internal library)
     INTERNAL_SKEYLIB="yes"
     SKEYLIB="-lskey -Llibskey"
     CFLAGS="${CFLAGS} -Ilibskey"
