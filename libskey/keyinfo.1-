@@ -1,0 +1,61 @@
+.ll 6i
+.pl 10.5i
+.\"	@(#)keyinfo.1	1.1 (Bellcore) 7/20/93
+.\"
+.lt 6.0i
+.TH KEYINFO 1 "20 July 1993"
+.AT 3
+.SH NAME
+keyinfo \-  Shell script to extract sequence number and seed for S/Key challenges.
+.SH SYNOPSIS
+.B keyinfo [<S/Key system name>]
+.SH DESCRIPTION
+.I keyinfo
+Takes an optional S/Key system name and writes the current sequence number
+and seed found in the S/Key database /etc/skeykeys. The default system is
+the current system. Should be used as 
+.sp 0
+key latour
+.sp 0
+or
+.sp 0
+key cube
+.sp 0
+Host latour is used for telnet via internet access.
+Host cube is used for dial\-in access.
+.sp 1
+Useful in generation a list of passwords for use on a field trip, where
+telnet is the mode of access, by combining
+with the command 
+.I key
+in the form 
+.sp 0
+key \-n  <number of passwords to print> `keyinfo latour`|lpr
+.SH EXAMPLE
+.sh
+  Usage example:
+.sp 0
+ 	>keyinfo latour
+.sp 0
+	0098 la91340
+.sp 0
+ 	>
+.LP
+.SH OPTIONS
+.LP
+.B <S/Key system name>
+the S/key system to go to get the information
+The default is system local system which will generate and error comment
+if S/key is not installed on the local system.
+.SH DIAGNOSTICS
+.SH BUGS
+.LP
+.SH SEE ALSO
+.BR keyinit(1),
+.BR keysu(1),
+.BR skey(1),
+.BR key(1)
+.SH AUTHOR
+Command by Phil Karn, Neil M. Haller, John S. Walden
+.SH CONTACT
+staff@thumper.bellcore.com

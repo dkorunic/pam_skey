@@ -67,10 +67,20 @@ AC_ARG_WITH(skey-inc, [  --with-skey-inc=DIR     Directory containing skey inclu
 dnl Check for skey library
 AC_CHECK_LIB(socket, socket)
 AC_CHECK_LIB(nsl, gethostbyname)
-AC_CHECK_LIB(skey, skeyverify, SKEYLIB="-lskey", AC_MSG_ERROR(skey library not found or unknown interface))
-AC_CHECK_LIB(skey, skeyaccess, AC_DEFINE(HAVE_SKEYACCESS))
-AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),
-  AC_CHECK_LIB(skey, skeylookup, AC_DEFINE(HAVE_SKEYLOOKUP))
+AC_CHECK_LIB(skey, skeyverify,
+    [SKEYLIB="-lskey"
+    AC_CHECK_LIB(skey, skeyaccess, AC_DEFINE(HAVE_SKEYACCESS))
+    AC_CHECK_LIB(skey, skeyinfo, AC_DEFINE(HAVE_SKEYINFO),
+        AC_CHECK_LIB(skey, skeylookup, AC_DEFINE(HAVE_SKEYLOOKUP)))
+    ],
+    [AC_MSG_WARN(skey library not found or unknown interface)
+    INTERNAL_SKEYLIB="yes"
+    SKEYLIB="-lskey -Llibskey"
+    CFLAGS="${CFLAGS} -Ilibskey"
+    AC_DEFINE(HAVE_SKEYACCESS)
+    AC_DEFINE(HAVE_SKEYINFO)
+    AC_DEFINE(HAVE_SKEYLOOKUP)
+    ]
 )
 
 dnl Check against -G linker flag
@@ -100,6 +110,7 @@ fi
 
 AC_SUBST(LDFLAGS)
 AC_SUBST(SKEYLIB)
+AC_SUBST(INTERNAL_SKEYLIB)
 AC_SUBST(PAMLIB)
 AC_SUBST(MYHOST)
 AC_SUBST(PACKAGE)

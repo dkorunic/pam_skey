@@ -19,7 +19,6 @@
  * program is distributed.
  */
 
-static char rcsid[] = "$Id$";
 
 #include "defs.h"
 

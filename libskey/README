@@ -1,0 +1,857 @@
+A change log of this software can be found at the end of this document.
+
+For announcements of updates, send mail to majordomo@porcupine.org
+with as body (not subject): subscribe logdaemon-announce
+
+Report problems to:
+
+	Wietse Venema (wietse@porcupine.org)
+	IBM T.J. Watson Research Center
+	P.O. Box 704,
+	Yorktown Heights, NY 10532
+	USA
+
+Warning:
+========
+
+Many programs in this kit replace system utilities.  Don't replace
+system utilities unless you are an experienced system programmer and
+system administrator.
+
+I am using these programs daily on SunOS 4 and SunOS 5 systems, so I am
+pretty confident that they work well in these environments. 
+
+Other plaforms that are supported to some extent: Ultrix 4, IRIX 5,
+HP-UX 9 and OSF 1 (Digital UNIX).  However, I do not have root access
+on such systems so I unable to verify that the programs are really
+compatible with the ones that they replace.
+
+Introduction:  
+=============
+
+This archive contains the result of years of gradual transformations on
+BSD source.  All code works with SunOS 4, SunOS 5 (Solaris), Ultrix 4.x
+and other BSD43/SYSV4 clones. In addition, the S/Key-ified parts work
+with IRIX 5.3, HP-UX 9.0, and Sony NewsOS 4.x; the login clone also
+reportedly works with Linux. There is a very good chance everything
+now also works with Digital UNIX, but I was unable to test this myself.
+
+(1) rsh and rlogin daemons that log the remote username and perform
+    logging and access control in tcp/ip wrapper style.  By default
+    these daemons do not accept wildcards in hosts.equiv or .rhosts
+    files. Both daemons have an '-l' option to disable user .rhosts
+    files. The rshd optionally logs the user command (edit Makefile).
+    The programs are more picky than usual about file permissions
+    of .rhosts files:  they must be owned by the user (or by the
+    superuser), and they may not be group or world writable.
+
+(2) ftpd, rexecd and login software with fascist login failure logging
+    and with optional support for S/Key one-time passwords.  The rexecd
+    daemon disallows root logins, once my favourite backdoor.  The
+    support for S/Key one-time passwords is optional, and completely
+    invisible to users that do not need it.  UNIX passwords are still
+    permitted by default. A short description of how to use S/Key can
+    be found in the skey subdirectory. Binaries for DOS and other
+    systems can be found on thumper.bellcore.com. The rexecd optionally
+    logs the user command (edit Makefile).
+
+(2a) ftpd and login software that supports the SecureNet card (code
+    donated by William LeFebvre, Argonne National Laboratory). This
+    software needs a DES library (for example, host ftp.psy.uq.oz.au
+    directory /pub/Crypto/DES). See snk/README for more information.
+    The code has been tested with SunOS 4.x and 5.x.
+
+(3) an S/Key login shell for sites that cannot replace the login
+    program. Users first log into a password-less dummy account. The
+    S/Key login shell prompts for their real account name and presents
+    the corresponding S/Key challenge.
+
+The S/Key support uses the MD4 or MD5 hash function. The mode (MD4 by
+default, for backwards compatibility) is selected in skey/Makefile.
+
+The rshd and rlogind programs need the libwrap.a library that comes
+with recent (version >= 7.0) tcp/ip daemon wrapper implementations.  In
+order to build rshd and rlogind you will have to do a
+
+	setenv LOG_TCP /directory/with/libwrap.a
+
+Contents per directory:  
+=======================
+
+rlogind logging and access control in tcp wrapper style.  Regular
+	access is logged (by default) with priority daemon.info.
+	Rejected access is logged with daemon.warn or more urgent.
+	SunOS 4.x, SunOS 5.x and Ultrix 4.x. In order to use the "-l"
+	(ignore user .rhosts files) option you will also need to
+	install the login clone (see below). 
+
+rshd    logging and access control in tcp wrapper style.  Regular
+	access is logged (by default) with priority daemon.info.
+	Logging of commands is a compile-time option (see the
+	rshd/Makefile).  Rejected access is logged with daemon.warn or
+	more urgent.  SunOS 4.x, SunOS 5.x and Ultrix 4.x. 
+
+login   hacked for SunOS 4.x, SunOS 5.x, with optional access control
+	per (user,host) or per (user, tty); fbtab(5) security; fascist
+	login failure logging.  Regular logins are logged with priority
+	auth.info, unusual or rejected logins with auth.notice. S/Key
+	support. Can also be used with Ultrix 4.x for logins on
+	non-graphics consoles. Appears to work with IRIX 5.3, HP-UX 9.0
+	and Linux (Slackware), NewsOS 4.x, Digital UNIX.
+
+rexecd  Regular access is logged with priority daemon.info.  Fascist
+	login failure logging.  Logging of commands is a compile-time
+	option (see rexecd/Makefile). Rejected access is logged with
+	auth.warn or more urgent. Access to the root account is
+	prohibited.  S/Key support. SunOS 4.x, SunOS 5.x and IRIX 5.3.
+	Should also work with Ultrix. May work with HP-UX 9.0 and
+	NewsOS 4.x, Digital UNIX.
+
+ftpd    ftp daemon with fascist logging and login failure detection
+	much like the login clone. Also logs anonymous ftp transfers.
+	Tested with SunOS [45].  S/Key support. Should also work with
+	Ultrix 4.x. May work with IRIX 5.3, HP-UX 9.0, NewsOS 4.x,
+	Digital UNIX.
+
+telnetd pretty dumb BSD 4.3 telnetd. No access control or logging,
+	but compatible with SunOS 4.x, Ultrix 4.x, SunOS 5.x.
+	Relatively poor in features (no environment passing) so there
+	is less risks of surprises.
+
+keysu   NET/2 BSD su command ported back to SunOS 4.x, with S/Key
+	support. Tested with FreeBSD and SunOS 4.1.3. May work with
+	IRIX 5.3, HP-UX 9.0, NewsOS 4.x, Digital UNIX.
+
+skeysh  An S/key login shell for sites that cannot replace the login
+	program. The solution is to create a dummy account with skeysh
+	as the login shell. skeysh is nothing but a stripped-down
+	skey-only login program.  People first log into the dummy
+	account. This drops them into skeysh that prompts them for
+	their real account name and presents the corresponding S/Key
+	challenge.  Tested with SunOS 4.1.3 and with Solaris 2.3 and
+	IRIX 5.3.  Should work anywhere the login clone works.
+
+lib     additional routines used by login and by some daemons.
+	Includes the ruserok() function that understands NIS, NFS
+	(yuck) and that optionally skips user .rhosts files, and
+	functions that mangle various UTMP file formats.
+
+skey    Portions of S/Key source from thumper.bellcore.com, plus code
+	that I hacked together myself. All bugs are my own. Edit the
+	Makefile to choose between the MD4 or MD5 secure hash function.
+	MD4 is default, for backwards compatibility.
+
+snk     Code for the SecureNet card by William LeFebvre, Argonne
+	National Laboratory). See snk/README for more information.
+
+Change log:  
+===========
+
+19901218 Fixed a problem with NOFLSH in login.c that caused interrupts
+	to not flush the terminal input queue.
+
+19910209 Added per-user login access control.
+
+19911128 Added support to login for SunOS 4.x style /etc/fbtab, a table
+	of devices whose protection and ownership is to be adjusted
+	when a user logs in.
+
+19920609 Added tcp wrapper (log_tcp) style access control to rlogind and
+	rshd. Improved the remote host name verification code. Added
+	the LD_xxx environment fix to login.
+
+19920624 Login no longer just dies when the connection is broken, but
+	first reports a login failure. This exposes an old cracker's
+	trick.
+
+19921029 Ported to Ultrix 4.2. Most of the work was finding out why the
+	login process did not have a controlling terminal.
+
+19921208 Ported to Solaris 2.0. rlogind can now work with the /bin/login
+	that comes with most UNIXes. This was desirable because not
+	everyone is in a position to replace /bin/login.  Moreover,
+	some SYSV logins can't even support the '-f' option at all (or
+	everyone could login without a password). 
+
+	2alpha version released.
+
+19921229 Tested with Solaris 2.1; some cleanups after looking at
+	modified 4.4BSD sources from Charles Hedrick
+	(hedrick@cs.rutgers.edu).  The sources can be found on
+	farside.rutgers.edu.
+
+19930103 Most of the sensible SYSV login features implemented. Frozen
+	after check, check and double check. The source really suffered
+	from porting and has become too ugly. It becomes a lot more
+	readable after running through the unifdef program. 
+
+	Version 2beta released.
+
+19930119 Version 2 released after compatibility patches: rshd path;
+	disabling the local domain stripping in login.c; cleanup utmpx
+	file after rejecting an rlogin connection.
+
+19930221 Added group support to the login access control code, so that
+	we can disallow off-site logins to wheel group members.  Group
+	matches work only for accounts that are explicitly listed in
+	the group file: the matching is not based on group id values.
+
+19930222 Stole the code for the EXCEPT operator from the tcp wrapper.
+	This, and the previous change, allows me to replace:
+
+		# Disallow non-local logins into the wheel accounts
+		+:foo bar baz:LOCAL .my.domain -:foo bar baz:ALL
+
+	into the much easier to understand:
+
+		-:wheel:ALL EXCEPT LOCAL .my.domain
+
+	Assuming, of course, that the default is to permit access.
+
+19930331 Added per-program hints on how to configure syslogd.
+	Added __svr4__ to the Solaris CFLAGS macro because the
+	unbundled C compiler does not define it.
+
+19930925 Upped the number of ptys that telnetd and rlogind will attempt
+	to open.  The original versions would give up after 64 ptys.
+
+19930925 rshd now preserves TZ info when running under SunOS 5.
+	We were too compatible with SunOS 5.
+
+19930925 login will now syslog() all regular logins, too. It took
+	me too much time to examine individual wtmp files.
+
+19930929 Ultrix last minute patch to fix rshd environment handling. The
+	fix must be ok for SunOS too but no time to verify this.
+
+19931206 With SunOS 5.x, Do not pass the "-p" option to login.
+
+19931212 Added logindevperm support for compatibility with SunOS 5.3.
+
+19931212 Added support to the login command for secure (DES) RPC (only
+	for SunOS [45].x). This requires that the cleartext password be
+	kept around until we have dropped privileges.  Had to jump some
+	hoops to prevent the program from ever dropping core with a
+	cleartext password.
+
+19931212 Print error message when the login.access file exists but
+	cannot be opened.
+
+19931225 Added S/Key support to login 'cause I was going on a trip.
+
+19931229 While on my trip, added S/Key support to ftpd.
+
+19940106 Woke up at 5am and realized there was a problem in my S/Key
+	stuff.
+
+19940107 S/Key Solaris portability fixes from Douglas Lee Schales.
+
+19940110 Make sure that keyinit does not produce world-writable files.
+
+19940112 SysV4.0 wtmpx portability fixes from Baruch Cochavy.
+
+19940124 Fixed some ftpd  and skey things that broke for Ultrix 4.x.
+
+19940125 Fix for Solaris uname(2) >0 return value. I fixed this before
+	but somehow the change got misplaced. From Douglas Lee
+	Schales.
+
+19940130 Made initial seed from skeyinit.c more random (use seconds
+	instead of minutes). I managed to produce the same seed on
+	multiple machines. The whole seed generation procedure sucks
+	anyway:  taking the first two letters of a host name.
+
+19940205 Made initial seed from skeyinit.c more random (use last 5
+	digits of current time in seconds).
+
+19940206 Fixed some login Makefile things that broke for Ultrix 4.x.
+
+19940206 Had some real fun with (argh) NIS+. The old BSD login code
+	would blindly close all filedescriptors > 2 right AFTER it had
+	processed the command-line options. I had to move the closing
+	of open files right to the top of the main program. The reason
+	for this is that all kinds of nisplus library routines secretly
+	open sockets or files and keep them open forever. They get very
+	upset when you unexpectedly close their open files.
+
+19940306 Finally got so disgusted from the BSD/SYSV #ifdefs that I
+	began to clean up the login program. From now on we use POSIX
+	instead of BSD/SYSV ifdefs.  Many of my personal enhancements
+	are no longer conditional. Ultrix misses some definitions so
+	login won't compile there anymore.
+
+	Kerberos code for login.c (John DiMarco
+	<jdd@cdf.toronto.edu>).
+
+19940312 Security feature: when S/Key decides whether UNIX passwords are
+	ok, skip IP addresses listed for the remote host that appear to
+	belong to someone else.
+
+	Cleaned up the rlogind/telnetd code (POSIX interfaces instead
+	of BSD/SYSV ifdefs).
+
+	Changed the ftpd S/Key password prompt so that the MS-DOS
+	`termkey' TSR can parse it.
+
+19940314 Cleaned up the ftpd code (POSIX interfaces instead of BSD/SYSV
+	ifdefs).  Ultrix misses some definitions so ftpd won't compile
+	there anymore.
+
+	All code now compiles and works on freebsd, which has become my
+	development platform while traveling.
+
+	The code compiles OK on an Indy running IRIX 5.something:  just
+	pretend to be sunos5.
+
+19940317 The telnetd/login programs no longer assume 7 or 8 bits, but
+	leave CS7/CS8 tty settings alone.
+
+19940321 Modern rloginds seem to prefer 8-bit clean settings, so we
+	force CS8 from now on.
+
+19940326 Our system administrator wanted netgroup support in the login
+	access control file. This took only a few lines of code. A
+	netgroup is written as @name, and can be used in host patterns
+	and in user patterns.
+
+	Included the keyinfo command and documentation, after getting
+	rid of localisms.
+
+	keyinit now restores the tty settings when it is interrupted.
+
+	logdaemon-4.1.tar.Z released.
+
+19940426 Backwards compatibility code for Ultrix in login and ftpd.
+
+	Added keysu (s/key su) command. This has little to do with
+	daemon stuff but it just makes the package complete. This has
+	been tested only with SunOS 4.x and FreeBSD.
+
+	Unset FLUSHO in login.c, in case it helps.
+
+19940430 rexecd and rlogind now use the fd_set macros, to shut up
+	the ANSI C compiler.
+
+	converted net/2 su.1 man page to old -man macro style.
+
+	William C. DenBesten asked for user@host patterns in the login
+	access control files, so he could control many machines with
+	just one set of rules. Fortunately, this took only a few lines
+	of code.  The hostpart is matched against the local host name.
+	With user@host patterns and netgroups you can build impressive
+	patterns such as @usergroup@@hostgroup.
+
+19940505 Peter Kossakowski (dfn cert) mentioned he usefulness of the -l
+	option to ignore user .rhosts files. On most systems, the
+	ruserok() library function have no support for that, so a
+	modified version is provided.
+
+	As a bonus, '+' wildcards are by default no longer accepted.
+	Instead a loud complaint is sent to the syslogd. The programs
+	must be compiled without -DNOPLUS to re-enable '+' wildcards.
+
+	The -l option is supported by rshd, rlogind and by the login
+	program (rlogind must pass on the -l option when the login
+	program does the hosts.equiv/rhosts processing).  Thus, in
+	order to use -l you will have to replace both rlogind and login
+	(and, of course, rshd).
+
+	Most path names and syslog logging classes are now configurable
+	from the Makefile.
+
+19940516 Fixed the README and released version 4.2.
+
+19940523 Just like the login program, the ftpd now tries to avoid
+	dumping core with cleartext or encrypted (shadow) passwords.
+
+19940628 Generalized the format of the /etc/skey.access file so you can
+	permit/deny UNIX passwords depending on user, tty and/or host.
+	There is a new manual page, skey/skey.access.5 that documents
+	this new format.
+
+19940718 Fixed another thing that broke with Ultrix: in lib/rcmd.c
+	moved an #endif up to above the rresvport() routine.
+
+	Now that you can specify what terminals are secure, the S/Key
+	code has been modified to always permit UNIX passwords on the
+	console. This saves you the embarrasment of having to break
+	into your own machine. Alas, on some systems the console is not
+	called /dev/console.
+
+	Released version 4.3.
+
+19940908 Added -user and -host support to ruserok().  No-one complained
+	sofar, but most systems document it. Looks like one feature
+	that Berkeley dropped.
+
+	HP-UX and BSDI support from Howard Chu for login, keysu and
+	s/key.
+
+	Replaced Howard's "vendor" #ifdefs by "feature" #ifdefs.
+
+	(s/key) When built with -DSECURETTY, the keysu command will not
+	accept the root password unless it is invoked from a secure
+	terminal.  Idea from Howard Chu.
+
+	(s/key) "keyinit -s" would ask for counts up to 10000 but the
+	actual limit is 9999 (Howard Chu).
+
+	(s/key) Eliminated a possible localhost vs localhost.domain
+	clash (Howard Chu).
+
+19940910 Collected system dependencies in one central file (sys_defs.h)
+	and cleaned up the Makefiles. This may help when porting to
+	other systems.
+
+19940911 After discussions with Guido van Rooij, documented several host
+	name and address spoofing loopholes that may cause S/Key to
+	permit UNIX passwords to unauthorized clients.
+
+940914/5 Porting rexecd, ftpd, rlogind and telnetd to HP-UX 9.0 was not
+	impossibly difficult. The effort may be useful to someone.
+
+19940917 Disabled the `site' extensions (umask, chmod) for ftp guest
+	logins.
+
+19940922 Replaced the MD4 code by the byte-order independent versions
+	from the NRL distribution on thumper.bellcore.com. MD4 is still
+	the default. Edit skey/Makefile to switch to MD5.
+
+19941001 Idea from *Hobbit*: sites that cannot replace their login
+	program create a dummy s/key account with as login shell a very
+	much stripped-down skey-only login program.  The skeysh program
+	is my result of such an exercise.
+
+19941002 Cleaned up docs and comments.
+
+	Released version 4.4.
+
+19941014 setenv() was missing an argument in skeysh/skeysh.c. This
+	should not cause problems, but gcc barfs on it. sigh.
+
+19941022 Fixed pointer indirection level in lib/utmp_login.c. This
+	would produce unpredictable results for HP-UX.
+
+19941105 Parametrized some hard-coded lengths for environment variables
+	and fixed some rather short limits on username length.
+
+19941121 Changed the default console from /dev/console to none. This is
+	more compatible with SysV (Kevin Davidson).
+
+19941121 Dropped ptyopen() etc. support for HP-UX. Having to support
+	BSD and SYSV ptys is bad enough.
+
+19941126 It seems that assignments of static data to the environ
+	variable may cause trouble on non-BSD systems. Instead of
+
+		environ = envinit; execl(...);
+
+	we no longer replace environ but truncate it and use putenv():
+
+		environ[0] = 0; putenv(...);
+
+19941127 On System V all daemons now preserve the complete initial
+	environment. There were several reports of missing TZ values.
+	I was unable to reproduce them with Solaris 2.3 and gcc.
+
+19941127 Fixed skey/skeylogin.c to look at more than just the first 8
+	characters of the login name.
+
+19941127 Fixed something in the skeysh/Makefile that broke on Ultrix.
+
+	Released version 4.5.
+
+19941129 With Solaris 2.x, keysu would recognize '-' as a user name.
+	This is due to getopt() incompatibilities. Fix: SysV su does
+	not support options anyway, so drop the getopt loop.  Reported
+	by in1052@wlv.ac.uk (A.Parkes).
+
+19941129 Found another static assignment to environ in keysu.c.
+
+19941130 Should have used setenv() to set the user's path in keysu.
+	Reported by Patrick Cipiere <Patrick.Cipiere@sophia.inria.fr>.
+
+19941209 With passive open, do not wait forever in accept(). Idea from
+	casper@fwi.uva.nl in article <3asnqc$1h0@mail.fwi.uva.nl>.
+
+19941218 Changed rlogind and rshd to use the open-ended tcp wrapper 7.0
+	programmatic interface, so that banners can be used.
+
+19950101 Patches from David Mazieres: close redundant file descriptors
+	in rshd and rexecd; workaround for broken HPUX setsid(); also,
+	the HP-UX baud-rate codes differ from those on other
+	platforms.
+
+19950101 Ftpd would send bare linefeeds when listing files over an
+	ASCII-mode data connection, causing problems with wattcp
+	clients (reported by Shou-Chuan Lai).
+
+19950108 Released 4.6, together with TCP wrappers 7.0.
+
+19950111 David Mazieres: HPUX cc is pickier than I expected. What's
+	worse, they already define a struct request_info. Time for a
+	horrible workaround.
+
+19950111 In S/Key passwords, accept commas instead of blanks, to work
+	around stupid software that collapses blanks in passwords.
+
+19950121 Added SYSV shadow support to keysu (suggestion: Leif
+	Hedstrom).
+
+19950213 skeyaccess could dereference a null pointer when host lookup
+	failed (Larry J. Blunk @ Merit.edu). How embarrassing.
+
+19950222 Make ftpd try again when the data port bind() fails with
+	EADDRINUSE.
+
+19950222 keysu did not strip the "/dev/" from the device name when
+	looking for a secure terminal (Rob Liebschutz).
+
+	Released 4.7.
+
+19950229 Oops. The securetty code in keysu looked at the wrong tty
+	variable (Matthew Needes).
+
+19950308 Some Solaris applications may pass a '-' as username to
+	/usr/bin/login (Kadlecsik Jozsi).
+
+19950321 Protected all environ[0]=0 assignments by a test if environ is
+	nonzero. Ultrix daemons may have a null environment pointer,
+	how bizarre. Paul Sijben helped me figure out this one.
+
+19950414 Oops. do_access() should call exit() not cleanup() (credits to
+	Shou-Chuan Lai of National Tsing Hua University).
+
+19950422 Completed ULIMIT, UMASK and SLEEPTIME login default support.
+
+19950423 IRIX 5.3 support for s/key utilities and login/ftpd/rexecd.
+	I still need to figure out what some IRIX login options do.
+
+	Released 4.8.
+
+19950425 The login kerberos code had stopped working (David Mazieres).
+
+19950426 HPUX login now sets LOGNAME environment variable.
+
+19950428 Start of yet another series of S/Key code cleanups (Guido van
+	Rooij, Tom Dunigan, some thrown in myself).
+
+19950429 Linux (Slackware) login fixes (Michael Brennen).
+
+19950430 IRIX problem: libnsl breaks NIS lookups (Tom Dunigan).
+
+19950430 IRIX now takes default user and root PATH from <paths.h>.
+
+19950430 More Linux (Slackware) login fixes (Michael Brennen).
+
+19950430 IRIX login now also sets REMOTEUSER.
+
+19950430 Folded in support for Sony NEWS-OS V4 (Jun-ichiro Itoh).
+
+19950430 Makefile cleanups: recursive make -n, intel outside.
+
+19950430 FreeBSD 2.0 workarounds (sys_errlist) so I can work on this
+	code on my laptop while in the train.
+
+19950430 Made console device name configurable via sys_defs.h so that
+	skeyaccess does the right thing with Linux.
+
+19950501 With HPUX, now use the system's getusershell() routines and
+	don't link in the SYSV default routines when building skeysh.
+
+19950501 Implemented IRIX login default MAXTRYS (login attempt limit).
+
+	Released 4.9. This release was expedited because of a file
+	descriptor leak in my own S/Key glue routines. The leak could
+	give logged-in users write access to s/key control files.
+
+19950502 The keyprint script (to print credit cards with s/key
+	passwords) did not set PATH (Lionel Cons).
+
+19950622 FreeBSD needs linking with -lcrypt or you get a weaker crypt()
+	algorithm. Now I can hack logdaemon while on the train.
+
+19950805 On systems with shadow passwords, rshd should not look at
+	password fields from /etc/passwd (Peter A. Bigot).
+
+19950806 Ultrix login now displays the LAT port (Michael A. Crowley).
+
+19950807 Workaround for variadic functions on the alpha and other
+	architectures where sizeof(int) < sizeof(pointer). Should
+	change the code to use varargs/stdarg instead.
+
+19950812 Folded in the support for SecureNet keycards from William
+	LeFebvre, Argonne National Laboratory. Presently, this is
+	tested for SunOS 4/5 only, but probably works on everything
+	else.
+
+19950812 Added my best guess for OSF1 (now Digital UNIX) system
+	dependencies: late BSD-ish with SYSV utmp.
+
+19950812 The rexecd and rshd servers will log now user commands when
+	compiled with -DLOG_COMMANDS (see Makefile).
+
+19950813 ftpd now closes unused passive ports, and rejects PORT requests
+	that specify a privileged port or a third-party host (Hobbit).
+
+19950814 Removed unnecessary seteuid() calls in FTPD passive mode.
+
+19950815 FTPD Passive mode can now be forced to bind to ports in a
+	specific window by doing, before make:
+
+	    setenv PASV_WINDOW "-DPASV_MIN_PORT=nn -DPASV_MAX_PORT=mm"
+
+19950826 With secure RPC, the user's password should be truncated to 8
+	characters (Kjell Hogstrom).
+
+19950930 Skeysh did not re-enable INT and QUIT signals (Jay
+	Borkenhagen).
+
+19951001 Changed the skeyaccess() interface. The skey.access "group"
+	now also matches the primary group ID. (Michael Aichlmayr).
+
+19951001 Code reorganization: system dependencies moved from Makefile
+	to sys_defs.h, common files moved to lib directory.
+
+19951012 Removed a redundant ulimit() call in login.c and skeysh.c: it
+	broke with a zero ulimit in /etc/default/login (Carson
+	Gaspar).
+
+19951017 Skeysh now preserves the REMOTEUSER environment variable.
+
+19951020 Updated the ftpd manual page to reflect today's reality.
+
+19951021 Some HP-UX tty drivers still default to the @ and # line
+	editing characters, and rely on the login program to sanitize
+	them (Gordon Marler).  The login program now fixes such ancient
+	settings.
+
+19951021 Avoid potential problems by saving results from functions with
+	volatile results such as inet_ntoa() and gethostby*().  With
+	Solaris library routines doing their own hidden connection
+	management, such library results become unreliable.
+
+19951024 Dropped some redundant code and declarations from rexecd.
+
+19951024 The rshd host name spoofing test was slightly broken.  The
+	program would dump core instead of logging the attack.  I
+	wonder how many treasures of this kind still lie buried in the
+	BSD source code.
+
+19951024 ftpd now uses facility LOG_AUTH, just like rexec and login.
+
+19951024 While in the underseas tunnel between France and the UK,
+	fixed an obscure s/key ftpd core dump that happens when the
+	user sends no password.
+
+19951027 Updated the fixenv() environment stripper.
+
+19951028 System dependencies now trigger on hpux9 instead of hpux,
+	so that we can more easily migrate to HP-UX 10.
+
+19951028 Added support for window size changes to the telnet daemon.
+	This is about the only essential feature that I was missing.
+	In the process fixed a bug in the telnet suboptions handling.
+
+	Released 5.0
+
+19951029 The S/Key routines now syslog an error when they are unable to
+	open the skeykeys file. Better be explicit than have people
+	wonder why something did not work.
+
+19951030 Cleaned up the ftpd yacc grammar. The YACC stack is now a union
+	so it no longer assigns pointer values to integers.
+
+19951124 Solaris 2.5 now needs _SVID_GETTOD (Frank Kaefer) or we have
+	a function prototype conflict.
+
+19951201 In transfer logs, ftpd should not log the current directory
+	when the remote user specifies an absolute path name.
+
+19951201 login_access() did not match primary groups (Dave Adamson).
+
+19960115 Work around for HPUX 9.x in case the client hostname is unknown
+	(telnetd/rlogind pass the *server* address on the command line).
+
+19960115 In the Makefiles, osf1 changed to decosf1 to avoid confusion
+	with OSF on Intel.
+
+19960115 Several DECOSF patches from Lawrence MacIntyre.
+
+19960115 keysu now logs the host from which the user is logged in
+	(Marcus Schwartz).
+
+19960115 Now also logs file owner and permissions problems with .rhosts
+	files instead of just refusing to use the file (Bob Beck).
+
+19960115 keysu now has the '-c command' option.
+
+19960115 Cleaned up some logging code in login (Chris Metcalf).
+
+19960213 Better HP-UX 9.x compatibility (Eric Backus).
+
+19960213 No "wheel" group restriction for "su root" for SYSV systems
+	(except SunOS 5...).
+
+19960213 Ignore empty "wheel" groups (Chris Metcalf).
+
+19960226 Christophe Dorchies found an missing argument in a
+	fatalperror() call in the rlogind program.
+
+19960308 UTMP fix for Digital-UNIX - it's not really a SYSV-UTMP system.
+
+19960308 Jean-Luc Szpyrka spotted an unitialized memory read in btoe().
+
+19960314 SunOS 4 sets the LOGNAME environment variable, and so should
+	we (Peter W. Osel @ Siemens).
+
+19960322 rlogind/rshd did not pass server name/address info to the tcpd
+	library routines (Shou-Chuan Lai <chuan@cs.nthu.edu.tw>).
+
+	Released 5.1
+
+19960425 Made skeyaccess() robust against null user arguments
+	(Cedomir Igaly ).
+
+19960518 keysu did not chek the return from getenv("TERM") (Henry Ptasinski)
+
+19960518 snk_crypt() left secrets behind in memory (Henry Ptasinski).
+
+	Released 5.2
+
+19960616 Patches for the login program for Digital UNIX with enhanced
+	security (Cedomir Igaly). Specify -DDECOSF1_ENHANCED to enable
+	this and link with -lsecurity (see login/Makefile).
+
+19960616 Use the Digital UNIX utmp/wtmp routines instead of our own
+	(Cedomir Igaly, Lawrence Macintyre).
+
+	Released 5.3
+
+19960920 Removed redundant waitpid() declaration from ftpd/popen.c.
+	It caused a prototype conflict.
+
+19961013 William LeFebvre: fix of 960518 caused SIGSEGVs due to a
+	missing initialization.
+
+19961016 How stupid of me. Marc Binderberger found a missing ntohs()
+	call that caused ftpd to erratically reject client PORT
+	requests.
+
+	Just in case, PASV and PORT commands now require that the user
+	is logged in before they can be used.
+
+19961029 Andrey A. Chernov: [in skey_getpass.c] Change "nope" to ":".
+
+19961031 rlogind no longer changes the VMIN and VTIME fields.
+
+	Released 5.4
+
+19961123 Reportedly, some resolvers (Solaris) do not protect
+	applications against unreasonable h_length values from the
+	network.  Protected the skey and snk code against such
+	nonsense.  This protection was delayed because I moved from
+	Europe to the USA for a sabattical year.
+
+19961123 Copied some patches from skey/skeyaccess.c to snk/snkaccess.c.
+
+19961222 In BoS, Joe Zbiciak spotted a buffer overflow in login.c main()
+	that dates all the way back to almost 10 years ago. It is
+	not certain that this can be exploited (main() never returns)
+	but it shouldn't be there anyway.
+
+	Released 5.5
+
+19970104 David Greenman of the FreeBSD project found an interesting
+	problem in wuftpd that allows remote users to access files
+	as root.  The same hole was also present in the logdaemon
+	ftpd, and probably in many other ftpd implementations, too.
+	The fix is to disable signals while ftpd temporarily raises
+	its privilege level or while it does other critical stuff.
+
+	Released 5.6
+
+19970111 When not guest, do seteuid(user) before chdir(~user) to avoid
+	problems with permissions over NFS (Doug Hughes).
+
+19970222 Limited the amount of text used when syslogging a hostname
+	from the DNS.
+
+19970729 In ftpd, now suspend signal delivery instead of dropping 
+	unwelcome signals.
+
+19970729 Workaround for wrong ftp-log xfer times on systems where
+	<sys/stat.h> st_size is larger than long.
+
+19980420 In ftp xfer stats, print ? when the current directory is unknown.
+
+19980901 Use makeutx() in order to support more than 255 ptys.
+
+19990830 More string length paranoia.
+
+	rshd now enters the home directory after changing privileges
+	(Peter W. Osel @ hl.siemens.de).
+
+	login now reports login failures after read timeout (Jim
+	Hranicky @ cise.ufl.edu).
+
+	login now supports "passwd -f" password expiration (John
+	R. Vanderpool @ gsfc.nasa.gov).
+
+	keyinit would dump core when given a bad argument (Jim
+	Simmons @ Oak Ridge National Labs).
+
+	"ftpd -d" would log passwords from non-anonymous sessions
+	(Mark Bergman @ phri.nyu.edu).
+
+	DEC OSF 1 patches from Lawrence MacIntyre, Oak Ridge National
+	Labs.
+
+	keysu syslogging is now more consistent with other tools
+	(Jim Simmons @ Oak Ridge National Labs).
+
+	Released 5.7
+
+19991107
+
+	Port to RedHat 5.0 LINUX. We'll see how soon it breaks again.
+
+19991108
+
+	Port to RedHat 6.1 LINUX. Will they ever stop screwing up their
+	include files?
+
+20000104
+
+	Y2k: the ftp server's MDTM command was broke.
+
+20000105
+
+	Missing { in ftpd.c
+
+	Released 5.8
+
+20010203
+
+	ftpd popen() could run over the end of an array. This is
+	not your /bin/sh buffer overflow but it is wrong anyway.
+
+	Released 5.9
+
+20010319
+
+	Lame DOS fix to disallow globbing characters before the
+	final slash in file globbing patterns.
+
+	Released 5.10
+
+20010416
+
+	Shortened the maximal result length from glob() to avoid
+	a buffer overflow problem in the retrieve() routine.  Fixed
+	null pointer bugs when glob() returns an error. Shortened
+	the command FTP parser's input string length in order to
+	prevent buffer overflows due to combinations of wild-card
+	expansion and directory walking.
+
+	Released 5.11

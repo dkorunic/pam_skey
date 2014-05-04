@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Script to run s/key inside its own local window, so you won't by
+# accident run the "key" utility in a remote session.  Also strips off
+# surrounding garbage so that you can stuff a whole line of text.
+
+exec xterm -g 41x5 -T s/key -e sh -c '
+KEY=key
+
+case `echo -n` in
+  "") c=; n="-n";;
+   *) c="\c"; n=;;
+esac
+
+while
+	echo $n "Challenge: $c"
+	read challenge
+do
+	$KEY `echo $challenge| sed -e "s/.*[Kk][Ee][Yy]\(.*\)[^0-9]*$/\1/"`
+done
+'

@@ -1,0 +1,100 @@
+.ll 6i
+.pl 10.5i
+.\"	@(#)keyinit.1	1.0 (Bellcore) 7/20/93
+.\"
+.lt 6.0i
+.TH KEYINIT 1 "20 July 1993"
+.AT 3
+.SH NAME
+keyinit \-  Change password or add user to S/Key authentication system.
+.SH SYNOPSIS
+.B keyinit [\-s]   [<user ID >] 
+.SH DESCRIPTION
+.I keyinit
+will initialize the system information to allow one to use S/Key to login.
+In the Lab 214 environment this must be done on system
+.I latour
+for telnet access or on system
+.I cube
+for dial\-in access. This is 
+not done on system faline where most other password changes are made.
+When you login to the Lab 214 system using S/Key 
+you will be on system latour if you use telnet and
+can then use the rlogin command to get to other Lab 214 systems.
+Or if you use dial\-in you will need to use 
+.I keyinit
+on system cube and after you login you will be at prompt of the
+terminal server named major. You can then use the command
+.sp 0
+rlogin <system name>
+.sp 0
+to get to any system connected on the internet.
+To assist in use of S/Key programs for CTRM PC terminal emulator, 
+Macintosh and a general purpose PC use
+are available. You may "download" them from the
+directory /usr/local/lib/key on system faline.
+.sp 1
+Note and take care because:
+.sp 0
+1) key accepts anything as a password and generates a list.  This can
+cause you troubles if you dont confirm the out put. 
+Most people, when typing in a password, assume if the proper thing
+happens (you get logged in, or whatever), the proper password was
+given.  Since key doesn't check, the data it gives you may be useless.
+Of course, you won't find this out until you get on the road and have
+to use it unless you test it first. SO TEST IT OUT!
+.sp 0
+Use command rlogin latour -l nobody
+.sp 0
+or
+.sp 0
+rlogin cube -i nobody
+.sp 0
+at the prompt Password: press <Enter> key till you get the prompt Login:
+.sp0
+Then give your user ID and at the next Password: prompt give the
+six Engilish words for the sequence number indicated.
+.sp 1
+2) If key is being run on the machine you're keyinit-ted for, it
+should be able to look up the info, only ask you for your password,
+and generate the correct thing (or a list of correct things), but it
+does not do this (yet).
+Otherwise, it can ask you for the key and password, and let you know
+that it can't check them.
+.sp 1
+3) You CAN use back space to make corrections and you may use lower
+case letters.
+.SH OPTIONS
+.B s
+Set secure mode where the user is expected to have used a secure
+machine to generate the first one time password.  Without the \-s the
+system will assume you are direct connected over secure communications
+and prompt you for your secret password.
+The \-s option also allows one to set the seed and count for complete
+control of the parameters.  You can use keyinit -s in compination with
+the 
+.I key
+command to set the seed and count if you do not like the defaults.
+To do this run keyinit in one window and put in your count and seed
+then run key in another window to generate the correct 6 english words
+for that count and seed. You can then
+"cut" and "paste" them or copy them into the keyinit window.
+.sp
+.LP
+.B <user ID>
+the ID for the user to be changed/added
+.SH DIAGNOSTICS
+.SH FILES
+.TP
+/etc/skeykeys data base of information for S/Key system.
+.SH BUGS
+.LP
+.SH SEE ALSO
+.BR skey(1),
+.BR key(1),
+.BR keysu(1),
+.BR keyinfo(1)
+.SH AUTHOR
+Command by Phil Karn, Neil M. Haller, John S. Walden
+.SH CONTACT
+staff@thumper.bellcore.com

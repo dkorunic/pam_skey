@@ -1,7 +1,3 @@
-# $Id$
-#
-# This is too simple Makefile template. I think some things could be
-# rewritten -kre
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 #$(DESTDIR) should suffice for packaging
@@ -11,6 +7,7 @@ CC=@CC@
 CFLAGS=@CFLAGS@ -Wall -fPIC -DPIC -pedantic
 LIBS=@LIBS@ @SKEYLIB@ @PAMLIB@
 LDFLAGS=@LDFLAGS@
+INTERNAL_SKEYLIB=@INTERNAL_SKEYLIB@
 
 INSTALL=@INSTALL@ -m 644
 RM=@RM@ -f
@@ -20,7 +17,7 @@ AWK=@AWK@
 
 PAM_FILES=pam_skey.so.1 pam_skey_access.so.1
 
-all: $(PAM_FILES)
+all: lib $(PAM_FILES)
 
 pam_skey.so.1: pam_skey.o
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS) $(LDFLAGS)
@@ -49,7 +46,13 @@ install:
 	done \
 
 clean:
+	$(MAKE) -C libskey clean
 	$(RM) a.out core *.so.1 *.o *.bak
 
 distclean: clean
 	$(RM) config.status config.cache config.log defs.h misc.h Makefile
+
+lib:
+ifeq ($(INTERNAL_SKEYLIB),yes)
+	$(MAKE) -C libskey libskey.a
+endif

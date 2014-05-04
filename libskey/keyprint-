@@ -1,0 +1,52 @@
+#!/usr/local/bin/perl
+
+# Version 1
+#
+#  Use this in whatever way you like, it's not worth copyrighting :-)
+
+$dir="/usr/local/bin";
+$psfile="$dir/keyblank.ps";
+$|=1;
+
+@ENV{'PATH'}='/usr/bin:/usr/ucb';
+
+$username=$ARGV[0] || `whoami`;
+$username =~ /(\w+)/;
+$username = $1;
+
+open(NAMES, "$dir/keyinfo $username|")
+  || die "can't run keyinfo: $!, stopped";
+$key = <NAMES>;
+$key =~ /^\d+\s+(\w+)/
+  || die "User $username not found.  Make sure you have run keyinit, stopped";
+$key = $1;
+close(NAMES);
+open(KEYS, "$dir/key -n 99 99 $key|")
+  || die "can't open $keyfile: $!, stopped";
+open(PS, "<$psfile") || die "can't open $psfile: $!, stopped";
+
+# yuck!
+print "Enter secret password:";
+system("stty -echo");
+
+while(<KEYS>)
+{
+  /^(\d+):\s(.+)$/ && do { $key{$1}=$2; next; }; 
+};
+
+# more yuck!
+system("stty echo");
+print "\n";
+
+close(KEYS);
+
+#open(PRINTER, "|lpr") || die "can't open printer: $!, stopped";
+open(PRINTER, ">keys.ps") || die "can't open keys.ps: $!, stopped";
+#open(PRINTER, ">-") || die "can't send output to STDOUT: $!, stopped";
+
+while(<PS>)
+{
+  s/USERNAME/$key/;
+  s/^\((\d+):\)/($1: $key{$1})/;
+  print PRINTER $_;
+}

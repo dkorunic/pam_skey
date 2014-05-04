@@ -1,0 +1,17 @@
+#!/bin/ksh
+# search /etc/skeykeys on system latour for the skey string for
+# this user OR user specified in 1st parameter
+if [ -z "$1" ]
+then
+	WHO=`/usr/ucb/whoami`
+else
+	WHO=$1
+fi
+if [ -f /etc/skeykeys ]
+then
+	SKEYINFO=`/usr/bin/grep "^$WHO[ 	]" /etc/skeykeys`
+else
+	echo "Obtaining your keyinfo from LATOUR, please wait."  1>&2
+	SKEYINFO=`/usr/ucb/rsh latour cat /etc/skeykeys|/usr/bin/grep "^$WHO[ 	]"`
+fi
+echo $SKEYINFO|/usr/bin/awk '{print $2-1,$3}'
