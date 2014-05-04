@@ -4057,37 +4057,6 @@ fi
 
 
 hold_ldflags=$LDFLAGS
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for the ld -shared flag" >&5
-$as_echo_n "checking for the ld -shared flag... " >&6; }
-LDFLAGS="${LDFLAGS} -shared"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdio.h>
-int
-main ()
-{
-void blahblah(){fprintf(stderr, "");}
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  found=yes
-else
-  found=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LDFLAGS=$hold_ldflags
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $found" >&5
-$as_echo "$found" >&6; }
-if test "$found" = "yes"; then
-  LDFLAGS="${LDFLAGS} -shared"
-else
-  LDFLAGS="${LDFLAGS} -G"
-fi
-
-hold_ldflags=$LDFLAGS
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the ld -export-dynamic flag" >&5
 $as_echo_n "checking for the ld -export-dynamic flag... " >&6; }
 LDFLAGS="${LDFLAGS} -Wl,-export-dynamic"

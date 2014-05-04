@@ -83,20 +83,6 @@ AC_CHECK_LIB(skey, skeyverify,
     ]
 )
 
-dnl Check against -G linker flag
-hold_ldflags=$LDFLAGS
-AC_MSG_CHECKING(for the ld -shared flag)
-LDFLAGS="${LDFLAGS} -shared"
-AC_TRY_LINK([#include <stdio.h>], [void blahblah(){fprintf(stderr, "");}],
-found=yes, found=no)
-LDFLAGS=$hold_ldflags
-AC_MSG_RESULT($found)
-if test "$found" = "yes"; then
-  LDFLAGS="${LDFLAGS} -shared"
-else
-  LDFLAGS="${LDFLAGS} -G"
-fi
-
 dnl Check against ld -export-dynamic flag
 hold_ldflags=$LDFLAGS
 AC_MSG_CHECKING(for the ld -export-dynamic flag)
