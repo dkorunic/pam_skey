@@ -1,5 +1,5 @@
 /* 
- * (c) 2001 Dinko Korunic, kreator@srce.hr
+ * (c) 2001 Dinko Korunic, dinko.korunic@gmail.com
  *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
